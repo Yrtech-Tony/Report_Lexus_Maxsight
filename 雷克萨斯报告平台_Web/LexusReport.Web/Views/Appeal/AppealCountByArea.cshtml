@@ -1,0 +1,159 @@
+﻿@{
+    Layout = "~/Views/Appeal/_AppealLayout.cshtml";
+    ViewBag.Title = "申诉统计";
+}
+<style>
+    .link-btn-cell {
+        margin: 3px 5px 0px;
+        cursor: pointer;
+    }
+</style>
+@section scripts{
+    <script type="text/javascript" language="javascript">
+        var download_file = { iframe: undefined };
+        var roleType = "@ViewBag.RoleType";
+        var curProjectCode =  '@ViewBag.CurrentQuarter'
+        $(function () {
+            $('.i,.opens').click(function(){
+                $('.i').children("font").toggleClass("other");
+                $('#searchForm').slideToggle();
+                $('#searchForm').toggleClass('none');
+                $('.opens').slideToggle();
+                $('.opens').toggleClass('none');
+            });
+
+            var div = $("<div class='list-inline'>");
+            $.post("/Appeal/ProjectSearch", {}, function (data) {
+                if (data) {
+                    $.each(data, function (i, item) {
+                        var chk = $('<input type="radio" name="ProjectCode"/>');
+                        if (curProjectCode == item.ProjectCode) {
+                            chk.prop("checked", "checked");
+                        }
+                        var valueF = $('<font>');
+                        var label = $("<label>").append(chk.val(item.ProjectCode)).append(valueF.text(item.ProjectName));
+                        div.append(label);
+                    });
+                    $("#searchDate").empty().append(div);
+                    $("input[type=radio]", $("#searchDate")).iCheckParser();
+
+                    $("#btnSearch").click();
+                }
+            });
+
+            //查询
+            $("#btnSearch").click(function () {
+                SearchShopFileInfo();
+            });
+
+        });
+
+        function getParams() {
+            var projectCode = $("#searchDate").find("input:checked").val();
+            return {
+                projectCode: projectCode
+            };
+        }
+
+        function SearchShopFileInfo(pageNo) {
+            updChkedInput();
+
+            var params = getParams();
+            params.pageNum = pageNo ? pageNo : 1,
+            $.ajax("/Appeal/AppealCountByAreaSearch", {
+                method: "Post",
+                data: params,
+                type: 'json',
+                success: function (data) {
+                    SearchShopFileInfoSuccess(data);
+                }
+            });
+        }
+        //查询成功后绑定数据
+        function SearchShopFileInfoSuccess(data) {
+            var table = $(".comm-table-div>table");
+            table.find("tbody").empty();
+
+            $.each(data.AppealCountByArea, function (index, item) {
+                var tr = $("<tr class='active'></tr>");
+                
+                //tr.append($("<td></td>").html(item.AreaCode));
+                tr.append($("<td></td>").html(item.AreaName));
+                tr.append($("<td></td>").html(item.SubjectCode));
+                tr.append($("<td style='text-align:left'></td>").html(item.CheckPoint).attr("title", item.CheckPoint));
+                tr.append($("<td></td>").html(item.AppealCount));
+                tr.append($("<td></td>").html(item.AppealSuccessCount));
+                //tr.append($("<td></td>").html(item.AreaCount));
+                table.find("tbody").append(tr);
+            })
+            addSumTr(data);
+        }
+
+        function addSumTr(data) {
+            var appealCountSum = 0;
+            var appealSuccessCountSum = 0;
+            var areaCountSum = 0;
+            if (data) {
+                $.each(data.AppealCountByArea, function (index, item) {
+                    var tr = $("<tr class='active'></tr>");
+                    appealCountSum += item.AppealCount;
+                    appealSuccessCountSum += item.AppealSuccessCount;
+                    //areaCountSum += item.AreaCount;
+                })
+            }
+            var tr = $("<tr class='active'></tr>");
+
+            //tr.append($("<td></td>").html(""));
+            tr.append($("<td></td>").html(""));
+            tr.append($("<td></td>").html(""));
+            tr.append($("<td></td>").html("<strong>合计</strong>"));
+            tr.append($("<td></td>").html("<strong>"+appealCountSum+"</strong>"));
+            tr.append($("<td></td>").html("<strong>"+appealSuccessCountSum+"</strong>"));
+            //tr.append($("<td></td>").html("<strong>" + areaCountSum + "</strong>"));
+
+            var table = $(".comm-table-div>table");
+            table.find("tbody").append(tr);
+        }
+    </script>
+}
+
+<div id="container" class="requir col-md-10">
+    <form id="searchForm" style="display:none">
+        <div id="inputBox" style="display:none;"></div>
+        <input type="hidden" name="type" value="">
+        <table class="table table-bordered">
+            <tr>
+                <th align="center">期号</th>
+                <td id="searchDate" class="searchComm"></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-center">
+                    <button type="button" class="btn btn-default" id="clear">清&nbsp;空</button>
+                    <button type="button" class="btn btn-primary" id="btnSearch">查&nbsp;询</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div class="opens">开启搜索</div>
+    <div class="sechform"><div class="collapse1 text-center"><div class="i"><font></font></div></div></div>
+    <div class="row" style="height:35px;">
+    </div>
+    <div class="list" style="overflow:auto;">
+        <div class="table-responsive comm-table-div">
+            <table class="table table-bordered table-set">
+                <thead>
+                    <tr>
+                        @*<th>区域代码</th>*@
+                        <th>区域名称</th>
+                        <th>题号</th>
+                        <th style="width:450px">指标</th>
+                        <th>申述数量</th>
+                        <th>成功数量</th>
+                        @*<th>区域处理数量</th>*@
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>

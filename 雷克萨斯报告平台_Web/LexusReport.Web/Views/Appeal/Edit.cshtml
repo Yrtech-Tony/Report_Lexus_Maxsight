@@ -1,0 +1,304 @@
+﻿@model LexusReport.Web.ClientService.AppealDto
+@{
+    Layout = "~/Views/Appeal/_AppealLayout.cshtml";
+    ViewBag.Title = "申诉编辑";
+}
+<script src="~/Scripts/oss-upload-direct/lib/crypto1/crypto/crypto.js"></script>
+<script src="~/Scripts/oss-upload-direct/lib/crypto1/hmac/hmac.js"></script>
+<script src="~/Scripts/oss-upload-direct/lib/crypto1/sha1/sha1.js"></script>
+<script src="~/Scripts/oss-upload-direct/lib/plupload-2.1.2/js/plupload.full.min.js"></script>
+<script src="~/Scripts/oss-upload-direct/lib/base64.js"></script>
+<script src="~/Scripts/oss-upload-direct/upload.js?20170928"></script>
+<script>
+    var userId = "@ViewBag.UserId";
+    var roleType = "@ViewBag.RoleType";
+    var areaNeedChk = '@Model.AreaNeedChk';
+    var MaxFeedBack = '@Model.MaxFeedBack';
+    var ShopAcceptChk = '@Model.ShopAcceptChk';
+    var osspath = "LexusReport/Appeal/" + roleType + "/";
+    $(function () {
+        //var obj = $("form").serializeObject();
+        //var key = obj.ProjectCode + '_' + obj.ShopCode + '_' + obj.SubjectCode;
+        //osspath += key+"/";
+
+        $(".feedback input[type=radio]").prop("disabled", true);
+        $(".feedback textarea").prop("readonly", true);
+
+        var showFlag = false;
+        if (ShopAcceptChk != "") {
+            if ((roleType == "S" || roleType == "Max")) {
+                $(".feedback input[name=LEXUSFeedBack]").prop("disabled", false);
+                showFlag = true;
+            }
+        } else if (MaxFeedBack != "") {
+            if ((roleType == "S" || roleType == "Shop")) {
+                $(".feedback input[name=ShopAcceptChk]").prop("disabled", false);
+                $(".feedback textarea[name=ShopAcceptReason]").prop("readonly", false);
+                showFlag = true;
+            }
+        } else if (MaxFeedBack == "") {
+            if ((roleType == "S" || roleType == "Max")) {
+                $(".feedback input[name=MaxFeedBack]").prop("disabled", false);
+                $(".feedback textarea[name=MaxFeedBackReason]").prop("readonly", false);
+                showFlag = true;
+            }
+        }
+        if ((roleType == "S" || roleType == "Max")) {
+            $(".feedback input[name=MaxFeedBack]").prop("disabled", false);
+            $(".feedback textarea[name=MaxFeedBackReason]").prop("readonly", false);
+            showFlag = true;
+        }
+
+        if (!showFlag) {
+            $("#btnSave").attr("disabled", true);
+        }
+
+        //$("." + roleType + "-feedback input[type=radio]").prop("disabled", false);
+        //$("." + roleType + "-feedback textarea").prop("readonly", false);
+        //if (roleType == "LEXUS" && areaNeedChk != "True") {
+        //    $("#AreaNeedChk[type=checkbox]").prop("disabled", false);
+        //} else {
+        //    $("#AreaNeedChk[type=checkbox]").prop("disabled", true);
+        //}
+
+        if (roleType != "Shop" && roleType != "S" && roleType != "Max") {
+            $("#selectfiles").hide();
+            $("#postfiles").hide();
+        }
+        //初始化LexusReport OSS 数据源
+        var ossClient = new OSSClient({
+            fileAddCheck: function () {
+                if ($("#SubjectCode").val() == "") {
+                    return false;
+                }
+                return true;
+            },
+            fileAddCheckMsg: "请填写题号，再选择上传附件",
+            osspath: osspath,
+            uploaded: function (args) {
+                var file = '';
+                if (args.fileName.indexOf('_') >= 0) {
+                    file = args.fileName.substr(args.fileName.indexOf('_') + 1);
+                }
+                
+                $.post("/Appeal/AppealFileSave", {
+                    projectCode: $("#ProjectCode").val(),
+                    shopCode: $("#ShopCode").val(),
+                    subjectCode: $("#SubjectCode").val(),
+                    fileName: file,
+                    serverName:args.fileName,
+                    fileType: roleType,
+                }, function (data) {
+                    debugger
+                    loadFileList();
+                });
+            }
+        });
+
+
+        $("#btnSave").click(function () {
+            //check propertys
+            if (ShopAcceptChk != "") {
+                if ((roleType == "S" || roleType == "Max")) {
+                    if ($("input[name=LEXUSFeedBack]:checked").length == 0) {
+                        alert("最终意见必须选择");
+                        return false;
+                    }
+                }
+            } else if (MaxFeedBack != "") {
+                if ((roleType == "S" || roleType == "Shop")) {
+                    if ($("input[name=ShopAcceptChk]:checked").length == 0) {
+                        alert("经销店接受与否必须选择");
+                        return false;
+                    }
+                    if ($("input[name=ShopAcceptChk]:checked").val() == "false" && $.trim($("textarea[name=ShopAcceptReason]").val()).length == 0) {
+                        alert("经销店理由必填");
+                        return false;
+                    }
+                }
+            } else if (MaxFeedBack == "") {
+                if ((roleType == "S" || roleType == "Max")) {
+
+                    if ($("input[name=MaxFeedBack]:checked").length == 0) {
+                        alert("明检项目组意见必须选择");
+                        return false;
+                    }
+                    if ($("input[name=MaxFeedBack]:checked").val() == "false" && $.trim($("textarea[name=MaxFeedBackReason]").val()).length == 0) {
+                        alert("明检项目组意见反馈必填");
+                        return false;
+                    }
+                }
+            }
+
+            var form = $(this).parents("form");
+            if (roleType == "Shop") {
+                confirm("内容保存后将不能修改，是否确认保存？", function () {
+                    form.submit();
+                });
+
+            } else {
+                confirm("是否确认保存？", function () {
+                    form.submit();
+                });
+                return false;
+            }
+
+        });
+
+        loadFileList();
+    })
+
+    function loadFileList() {
+        $.post("/Appeal/AppealFileSearch", {
+            projectCode: $("#ProjectCode").val(),
+            shopCode: $("#ShopCode").val(),
+            subjectCode: $("#SubjectCode").val()
+        }, function (data) {
+            $("#feedback_file_table tbody").empty();
+            if (data) {
+                $.each(data, function (i, item) {
+                    var tr = $("<tr>");
+
+                    var fileDownName = item.FileName;
+                    tr.append($("<td>").html(fileDownName));
+                    tr.append($("<td>").html(item.FileTypeName));
+                    tr.append($("<td>").html(item.InUserId));
+                    oprations = "<a href='/Appeal/DownloadOSSFile?filename={1}&downloadName={2}'>下载</a>";
+                    if (item.InUserId == userId && roleType != "Shop") {
+                        oprations += " | <a href='javascript:;' onclick='delFile({0},\"{1}\")'>删除</a>";
+                    }
+                    oprations = stringFormat(oprations, item.SeqNO, "LexusReport/Appeal/" + item.FileType + "/" + encodeURIComponent(item.ServerFileName), encodeURIComponent(fileDownName));
+
+                    tr.append($("<td>").html(oprations));
+
+                    $("#feedback_file_table tbody").append(tr);
+                });
+            }
+        });
+    }
+
+    function delFile(id, filename) {
+        confirm("确定要删除该文件吗？", function () {
+            $.ajax("/Appeal/DeleteFile", {
+                method: "POST",
+                data: {
+                    id: id,
+                    filename: filename
+                },
+                type: 'json',
+                success: function (data) {
+                    loadFileList();
+                }
+            });
+        });
+    }
+</script>
+
+<div class="requir col-md-10">
+    <form action="/Appeal/AppealSave" method="post">
+        <input type="hidden" name="add" value="false" />
+        <input type="hidden" id="ProjectCode" name="ProjectCode" value="@Model.ProjectCode" />
+        <input type="hidden" id="ShopCode" name="ShopCode" value="@Model.ShopCode" />
+        <input type="hidden" id="SubjectCode" name="SubjectCode" value="@Model.SubjectCode" />
+        <div style="width:100%;padding-bottom:5px;" class="text-right">
+            <a id="btnSave" class="btn btn-primary">保&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;存</a>
+        </div>
+        <table class="table table-bordered" style="margin-bottom:0px;">
+            <tr>
+                <th style="width:150px;">期号</th>
+                <td style="width:150px; text-align:center">
+                    @Model.ProjectCode
+                    <input type="hidden" name="ProjectCode" value="@Model.ProjectCode" />
+                </td>
+                <th style="width:100px;">经销店</th>
+                <td style="width: 200px; text-align: center">
+                    @Model.ShopName
+                    <input type="hidden" name="ShopCode" value="@Model.ShopCode" />
+                </td>
+                <th style="width:100px;">题号</th>
+                <td style="width: 150px; text-align: center">
+                    @Model.SubjectCode
+                    <input type="hidden" name="SubjectCode" value="@Model.SubjectCode" />
+                </td>
+            </tr>
+            <tr>
+                <th>指标</th>
+                <td colspan="5"><textarea class="form-control" rows="2" name="CheckPoint" readonly>@Model.CheckPoint</textarea></td>
+            </tr>
+            <tr>
+                <th>申诉理由</th>
+                <td colspan="5"><textarea class="form-control" rows="2" name="AppealReason" readonly>@Model.AppealReason</textarea></td>
+            </tr>
+            @*<tr>
+                    <th>最终意见</th>
+                    <td colspan="5">@Model.LastFeedBackStr</td>
+                </tr>*@
+
+            <tr class="feedback Max-feedback">
+                <th>明检项目组意见</th>
+                <td colspan="5">
+                    <label>@Html.RadioButtonFor(m => Model.MaxFeedBack, "true")  <font>同意</font></label>
+                    <label>@Html.RadioButtonFor(m => Model.MaxFeedBack, "false") <font>不同意</font></label>
+                </td>
+            </tr>
+            <tr class="feedback Max-feedback">
+                <th width="180">明检项目组反馈</th>
+                <td colspan="5"><textarea class="form-control" rows="2" name="MaxFeedBackReason">@Model.MaxFeedBackReason</textarea></td>
+            </tr>
+            @if (Model.MaxFeedBack.HasValue)
+            {
+                <tr class="feedback Shop-feedback">
+                    <th>经销店接受与否</th>
+                    <td colspan="5">
+                        <label>@Html.RadioButtonFor(m => Model.ShopAcceptChk, "true")  <font>接受</font></label>
+                        <label>@Html.RadioButtonFor(m => Model.ShopAcceptChk, "false") <font>不接受</font></label>
+                    </td>
+                </tr>
+                <tr class="feedback Shop-feedback">
+                    <th width="180">经销店理由</th>
+                    <td colspan="5"><textarea class="form-control" rows="2" name="ShopAcceptReason">@Model.ShopAcceptReason</textarea></td>
+                </tr>
+            }
+            @if (Model.ShopAcceptChk.HasValue)
+            {
+                <tr class="feedback Max-feedback">
+                    <th>最终意见</th>
+                    <td colspan="5">
+                        <label>@Html.RadioButtonFor(m => Model.LEXUSFeedBack, "true")  <font>同意</font></label>
+                        <label>@Html.RadioButtonFor(m => Model.LEXUSFeedBack, "false") <font>不同意</font></label>
+
+                    </td>
+                </tr>
+            }
+
+
+        </table>
+    </form>
+
+    <table class="table table-bordered">
+        <tr>
+            <th style="width:185px;">附件</th>
+            <td colspan="5">
+                <div id="upload-container" class="container-fluid" style="margin:0;padding:0">
+                    <div id="ossfile"></div>
+                    <div id="console"></div>
+                </div>
+                <div class="container-fluid pull-right">
+                    <button id="selectfiles" class='btn btn-default'>选择文件</button>
+                    <button id="postfiles" class='btn btn-primary'>开始上传</button>
+                </div>
+                <table id="feedback_file_table" class="table table-bordered table-condensed list" style="margin-bottom:10px;font-size:12px">
+                    <thead>
+                        <tr>
+                            <th class="col-md-7">文件名</th>
+                            <th class="col-md-1">文件类型</th>
+                            <th class="col-md-1">上传账号</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,18 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container mt20">
+    <div class="row">
+        <div class="col-xs-2 col-sm-2 col-md-2 menu">
+            <ul class="list-group">
+                <a class="list-group-item"><h4>报告查询下载</h4></a>
+                <a href="Inspection" class="list-group-item">检查标准</a>
+                <a href="DealerGuide" class="list-group-item">执行手册</a>
+                <a href="QuarterlyReport" class="list-group-item">单店报告</a>
+            </ul>
+        </div>
+
+        @RenderBody()
+    </div>
+    @RenderSection("scripts", required: false)
+</div>

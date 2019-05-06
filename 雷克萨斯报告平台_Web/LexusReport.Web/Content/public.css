@@ -1,0 +1,39 @@
+﻿@charset "utf-8";
+/* CSS Document */
+@font-face {
+    font-family: 'lexus';
+    src: url('../fonts/lexus2017.woff') format('woff'), url('../fonts/lexus2017.TTF') format('truetype'), url('../fonts/lexus2017.svg#glyphicons_halflingsregular') format('svg');
+}
+
+@font-face {
+    font-family: 'lexus-en';
+    src: url('../fonts/lexus2017.eot');
+    src: url('../fonts/lexus2017.eot?#iefix') format('embedded-opentype'), url('../fonts/lexus2017.woff') format('woff'), url('../fonts/lexus2017.ttf') format('truetype'), url('../fonts/lexus2017.svg#glyphicons_halflingsregular') format('svg');
+}
+
+body, table, td, th, ul, ol, li, div, h1, h2, h3, h4, p, span {
+    font-family: 'lexus','lexus-en','微软雅黑',Arial;
+}
+
+/*inline-block布局父盒子*/
+.inline-block-father {
+    font-size: 0;
+}
+/*inline-block布局的盒子*/
+.inline-block {
+    vertical-align: top;
+    display: inline-block;
+    zoom: 1;
+    *display: inline; /*补充代码，兼容IE6，7*/
+}
+
+.bottom {
+    background: url(images/bottom-bg1.png) no-repeat top center;
+    height: 76px;
+    line-height: 76px;
+    margin-top: 30px;
+}
+
+.mt20 {
+    margin-top: 20px;
+}

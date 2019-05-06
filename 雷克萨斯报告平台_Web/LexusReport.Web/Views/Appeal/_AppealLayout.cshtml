@@ -1,0 +1,18 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container mt20">
+    <div class="row">
+        <div class="col-xs-2 col-sm-2 col-md-2 menu">
+            <ul class="list-group">
+                <a class="list-group-item"><h4>申诉管理</h4></a>
+                <a href="/Appeal/Index" class="list-group-item">申诉查询</a>
+                <a href="/Appeal/AppealCountByArea" class="list-group-item">申诉统计</a>
+            </ul>
+        </div>
+
+        @RenderBody()
+    </div>
+    @RenderSection("scripts", required: false)
+</div>
+

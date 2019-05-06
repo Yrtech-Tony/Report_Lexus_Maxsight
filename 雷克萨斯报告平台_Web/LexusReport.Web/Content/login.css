@@ -1,0 +1,56 @@
+﻿@charset "utf-8";
+/* CSS Document */
+@import url("public.css");
+
+body {
+    background: url(images/login-bg.jpg) no-repeat center center fixed;
+    webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/login-bg.jpg', sizingMethod='scale');
+    -ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/login-bg.jpg', sizingMethod='scale')";
+}
+
+.mt {
+    margin-top: 130px;
+}
+
+.login {
+    width: 400px;
+    margin: 25px auto 0;
+    background: #EFEFEF;
+    padding: 15px 17px;
+    border-radius: 8px;
+}
+
+    .login form {
+        background: #DAD8D9;
+        padding: 13px;
+    }
+
+    .login .form-group {
+    }
+
+    .login input {
+        background: #CDCBCC;
+        border: 1px solid #ACAAAB;
+    }
+
+    .login .btn-default {
+        background: #F1F0EE;
+        vertical-align: central;
+    }
+
+    .login a {
+        line-height: 35px;
+        text-decoration: underline;
+        color: #333;
+    }
+
+.bottom-login {
+    background: url(images/bottom-bg.png) no-repeat top center;
+    color: #fff;
+    height: 76px;
+    line-height: 76px;
+}

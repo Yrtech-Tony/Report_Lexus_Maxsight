@@ -1,0 +1,4 @@
+SevenZip.SevenZipLibraryException: Can not load 7-zip library or internal COM error! Message: can not change the library path because the file "D:\D盘\workspace\项目整理\进行中的项目\Source\PC程序\雷克萨斯报告平台\LexusReport.Web\bin\7z64.dll" does not exist.
+   在 SevenZip.SevenZipLibraryManager.SetLibraryPath(String libraryPath)
+   在 SevenZip.SevenZipBase.SetLibraryPath(String libraryPath)
+   在 Vgic.Report.Web.Controllers.BaseController.SevenZipCompress(List`1 fileNames, String foler, String folderToZip, String zipedFile, Int32 level) 位置 d:\D盘\workspace\项目整理\进行中的项目\Source\PC程序\雷克萨斯报告平台\LexusReport.Web\Controllers\BaseController.cs:行号 217

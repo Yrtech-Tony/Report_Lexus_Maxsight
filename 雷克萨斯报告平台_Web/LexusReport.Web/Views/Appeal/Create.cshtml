@@ -1,0 +1,217 @@
+﻿@model LexusReport.Web.ClientService.AppealDto
+@{
+    Layout = "~/Views/Appeal/_AppealLayout.cshtml";
+    ViewBag.Title = "申诉登记";
+}
+@section scripts{
+    <script src="~/Scripts/oss-upload-direct/lib/crypto1/crypto/crypto.js"></script>
+    <script src="~/Scripts/oss-upload-direct/lib/crypto1/hmac/hmac.js"></script>
+    <script src="~/Scripts/oss-upload-direct/lib/crypto1/sha1/sha1.js"></script>
+    <script src="~/Scripts/oss-upload-direct/lib/plupload-2.1.2/js/plupload.full.min.js"></script>
+    <script src="~/Scripts/oss-upload-direct/lib/base64.js"></script>
+    <script src="~/Scripts/oss-upload-direct/upload.js?20170928"></script>
+    <script>
+        var osspath = "LexusReport/Appeal/Shop/";
+        var key = '';
+        var ossClient;
+        $(function () { 
+            //初始化LexusReport OSS 数据源
+            initOssClient();
+
+            $("#SubjectCode").change(function () {
+                $.post("/Appeal/SubjectSearch", {
+                    projectCode: $("input[name=ProjectCode]:checked").val(),
+                    subjectCode: $("input[name=SubjectCode]").val()
+                }, function (data) {
+                    if (data) {
+                        $.post("/Appeal/CheckAppealSave", $("form").serialize(), function () {
+                            //var obj = $("form").serializeObject();
+                            //key = obj.ProjectCode + '_' + obj.ShopCode + '_' + obj.SubjectCode;
+                            //initOssClient();
+
+                            $("#CheckPoint").val(data.CheckPoint);
+                            loadFileList();
+                        }).error(function () {
+                            $("#CheckPoint").val("");
+                            $("#SubjectCode").val("");
+                            $("#feedback_file_table tbody").empty();
+                        });
+                    } else {
+                        alert("该体系不存在，请重新输入！");
+                        $("#CheckPoint").val("");
+                        $("#SubjectCode").val("");
+                    }
+
+                });
+            });
+            $("#btnSave").click(function () {
+                if ($("[name=ProjectCode]:checked").length == 0) {
+                    alert("期号必须选择");
+                    return false;
+                }
+                if ($.trim($("#SubjectCode").val()).length == 0) {
+                    alert("题号必填");
+                    return false;
+                }
+                if ($.trim($("#CheckPoint").val()).length == 0) {
+                    alert("指标必填");
+                    return false;
+                }
+                if ($.trim($("#AppealReason").val()).length == 0) {
+                    alert("申诉理由必填");
+                    return false;
+                }
+                var form = $(this).parents("form");
+               
+                confirm("提交申诉后将不能再修改提交内容，是否确认提交申诉？", function () {                   
+                    form.submit();
+                });
+                return false;
+            });
+        })
+
+        function initOssClient() {
+            ossClient = new OSSClient({
+                fileAddCheck: function () {
+                    if ($("#SubjectCode").val() == "") {
+                        return false;
+                    }
+                    return true;
+                },
+                fileAddCheckMsg: "请填写题号，再选择上传附件",
+                osspath: osspath,
+                uploaded: function (args) {
+                    var file = '';
+                    if (args.fileName.indexOf('_') >= 0) {
+                        file = args.fileName.substr(args.fileName.indexOf('_') + 1);
+                    }
+
+                    $.post("/Appeal/AppealFileSave", {
+                        projectCode: $("[name=ProjectCode]:checked").val(),
+                        shopCode: $("#ShopCode").val(),
+                        subjectCode: $("#SubjectCode").val(),
+                        fileName: file,
+                        serverName: args.fileName,
+                        fileName: args.fileName, //key + "/" + args.fileName,
+                        fileType: "Shop",
+                    }, function (data) {
+                        loadFileList();
+                    });
+                }
+            });
+        }
+
+        function loadFileList() {
+            $.post("/Appeal/AppealFileSearch", {
+                projectCode: $("[name=ProjectCode]:checked").val(),
+                shopCode: $("#ShopCode").val(),
+                subjectCode: $("#SubjectCode").val()
+            }, function (data) {
+                $("#feedback_file_table tbody").empty();
+                if (data) {
+                    $.each(data, function (i, item) {
+                        var tr = $("<tr>");
+                        
+                        var fileDownName = item.FileName;
+                        tr.append($("<td>").html(fileDownName));
+                        tr.append($("<td>").html(item.FileTypeName));
+                        tr.append($("<td>").html(item.InUserId));
+                        
+                        oprations = "<a href='/Appeal/DownloadOSSFile?filename={1}&downloadName={2}'>下载</a> | <a href='javascript:;' onclick='delFile({0},\"{1}\")'>删除</a>";
+                        oprations = stringFormat(oprations, item.SeqNO, osspath + encodeURIComponent(item.ServerFileName), encodeURIComponent(fileDownName));
+
+                        tr.append($("<td>").html(oprations));
+                        $("#feedback_file_table tbody").append(tr);
+                    });
+                }
+            });
+        }
+
+        function delFile(id, filename) {
+            confirm("确定要删除该文件吗？", function () {
+                $.ajax("/Appeal/DeleteFile", {
+                    method: "POST",
+                    data: {
+                        id: id,
+                        filename: filename
+                    },
+                    type: 'json',
+                    success: function (data) {
+                        loadFileList();
+                    }
+                });
+            });
+        }
+    </script>
+}
+<div class="requir col-md-10">
+    <form  action = "/Appeal/AppealSave" method="post" onkeydown="if(event.keyCode==13){return false;}">
+        <input type="hidden" name="add" value="true" />
+        <input type="hidden" id="ShopCode" name="ShopCode" value="@ViewBag.ShopCode" />
+        <div style="width: 100%;padding-bottom:5px;" class="text-right">
+            <button id="btnSave" class="btn btn-primary">提交申诉</button>
+        </div>
+        <table class="table table-bordered" style="margin-bottom:0px;">
+            <tr>
+                <th width="100">期号</th>
+                <td width="400">
+                    @if (ViewBag.ProjectDtos != null)
+                    {
+                        int index = 0;
+                        foreach (LexusReport.Web.ClientService.ProjectDto proDto in ViewBag.ProjectDtos)
+                        {
+                            var chk = "";
+                            if (ViewBag.CurrentQuarter == proDto.ProjectCode || index == 0)
+                            {
+                                chk = "checked";
+                            }
+                            index++;
+                            <label>
+                                <input type="radio" name="ProjectCode" value="@proDto.ProjectCode" @Html.Raw(chk) />
+                                <font>@proDto.ProjectName</font>
+                            </label>
+                        }
+                    }
+                </td>
+                <th>题号</th>
+                <td width="400">
+                    <input type="text" class="form-control" id="SubjectCode" name="SubjectCode" placeholder="题号">
+                </td>
+            </tr>
+            <tr>
+                <th>指标</th>
+                <td colspan="3"><textarea class="form-control" rows="3" id="CheckPoint" name="CheckPoint" readonly></textarea></td>
+            </tr>
+            <tr>
+                <th style="border-bottom:none">申诉理由</th>
+                <td colspan="3"><textarea class="form-control" rows="3" id="AppealReason" name="AppealReason"></textarea></td>
+            </tr>
+        </table>
+    </form>
+    <table class="table table-bordered">
+            <tr>
+            <th style="width:105px;">附件</th>
+                <td colspan="3">
+                    <div id="upload-container" class="container-fluid" style="margin:0;padding:0">
+                        <div id="ossfile"></div>
+                        <div id="console"></div>
+                    </div>
+                    <div class="container-fluid pull-right">
+                        <button id="selectfiles" class='btn btn-default'>选择文件</button>
+                        <button id="postfiles" class='btn btn-primary'>开始上传</button>
+                    </div>
+                    <table id="feedback_file_table" class="table table-bordered table-condensed list" style="margin-bottom:10px;font-size:12px">
+                        <thead>
+                            <tr>
+                                <th class="col-md-7">文件名</th>
+                                <th class="col-md-1">文件类型</th>
+                                <th class="col-md-1">上传账号</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+</div>

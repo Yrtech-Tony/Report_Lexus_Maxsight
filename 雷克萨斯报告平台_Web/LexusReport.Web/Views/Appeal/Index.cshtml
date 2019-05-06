@@ -1,0 +1,310 @@
+﻿@{
+    Layout = "~/Views/Appeal/_AppealLayout.cshtml";
+    ViewBag.Title = "申诉查询";
+}
+<style>
+    .link-btn-cell {
+        margin: 3px 5px 0px;
+        cursor: pointer;
+    }
+</style>
+@section scripts{
+    <script type="text/javascript" language="javascript">
+        var download_file = { iframe: undefined };
+        var roleType = "@ViewBag.RoleType";
+        var countPerPage = @ViewBag.CountPerPage;
+        var pageCount = 1;
+        var scoreList = [];
+        var curProjectCode =  '@ViewBag.CurrentQuarter'
+        $(function () {
+            $('.i,.opens').click(function(){
+                $('.i').children("font").toggleClass("other");
+                $('#searchForm').slideToggle();
+                $('#searchForm').toggleClass('none');
+                $('.opens').slideToggle();
+                $('.opens').toggleClass('none');
+            });
+
+            var div = $("<div class='list-inline'>");
+            $.post("/Appeal/ProjectSearch", {}, function (data) {
+                if (data) {
+                    $.each(data, function (i, item) {
+                        var chk = $('<input type="radio" name="ProjectCode"/>');
+                        if (curProjectCode == item.ProjectCode) {
+                            chk.prop("checked", "checked");
+                        }
+                        var valueF = $('<font>');
+                        var label = $("<label>").append(chk.val(item.ProjectCode)).append(valueF.text(item.ProjectName));
+                        div.append(label);
+                    });
+                    $("#searchDate").empty().append(div);
+                    $("input[type=radio]", $("#searchDate")).iCheckParser();
+
+                    $("#btnSearch").click();
+                }
+            });
+
+            //查询
+            $("#btnSearch").click(function () {
+                SearchShopFileInfo();
+            });
+            $("#btnShopCodeOrName").click(function () {
+                SearchShopFileInfo();
+            });
+            $("#btnClear").click(function () {
+                SearchShopFileInfo();
+            });
+            $("#btnDownloadReport").click(function(){
+                Download();
+                //closealert();
+            });
+
+            if (roleType == "S" || roleType == "Max" || roleType == "LEXUS") {
+                $("#searchArea").show();
+            } else if (roleType == "01") {
+                $("#searchArea").show();
+                var radio = $('#searchArea').find('.searchComm input:radio');
+                $(radio).attr("checked",true);
+                getDealer($(radio).val(), 1);
+            } else if(roleType == "02"){
+                $("#searchArea").hide();
+                var shopList =  '@Html.Raw(Json.Encode(((LexusReport.Web.ClientService.UserInfoDto)Session["LoginUser"]).ShopList))';
+                bindDealer(JSON.parse(shopList));
+            } else if(roleType == "G") {
+                $("#searchArea").hide();
+                $("#searchDealerGroup").hide();
+                $('#searchDealerGroup').find('input').iCheck('check');
+            }else {
+                $("#searchArea").hide();
+
+                var dealerUl = $('#searchDealer').show().find('.searchComm');
+                var chk = $("<input type='checkbox' name='nDealerID[]' value='@ViewBag.ShopCodeForCurrentUser' checked>");
+                var valueF = $('<font>').text('@ViewBag.ShopNameForCurrentUser');
+                var label = $("<label bChk='2' onclick='dealerLiClk(this)' class='dealer-li'></li>").append(chk).append(valueF);
+                dealerUl.append(label);
+            }
+
+
+        });
+
+        function getParams() {
+            var shopCodes = [];
+            $("input[name='nDealerID[]']:checked").each(function () {
+                shopCodes.push($(this).val());
+            });
+            var areaCode = $("input[name='sArea']:checked").val();
+            var projectCode = $("#searchDate").find("input:checked").val();
+            var groupCode = $("input[name='sDealerGroup']:checked").val();
+
+            return {
+                areaCode: areaCode,
+                groupCode:groupCode,
+                shopCode: shopCodes.join(";"),
+                projectCode: projectCode,
+                shopCodeKey:$("#txtShopCodeOrName").val()
+            };
+        }
+
+        function SearchShopFileInfo(pageNo) {
+            updChkedInput();
+
+            var params = getParams();
+            params.pageNum = pageNo ? pageNo : 1,
+            $.ajax("/Appeal/Search", {
+                method: "Post",
+                data: params,
+                type: 'json',
+                success: function (data) {
+                    SearchShopFileInfoSuccess(data);
+                    pageCount = Math.ceil(data.totalCount / countPerPage);
+                    initPages(params.pageNum, pageCount, SearchShopFileInfo);
+                }
+            });
+        }
+        //查询成功后绑定数据
+        function SearchShopFileInfoSuccess(data) {
+            var table = $(".comm-table-div>table");
+            table.find("tbody").empty();
+
+            $.each(data.AppealDtoList, function (index, item) {
+                var tr = $("<tr class='active'></tr>");
+
+                var edit = $("<a class='link-btn-cell'>").html("编辑");
+                edit.click(function () {
+                    appealEdit(item);
+                });
+                tr.append($('<td></td>').append(edit));
+
+                tr.append($("<td></td>").html(item.ShopCode));
+                tr.append($("<td></td>").html(item.ShopName));
+                tr.append($("<td></td>").html(item.SubjectCode));
+                tr.append($("<td style='text-align:left'></td>").html(item.CheckPoint).attr("title",item.CheckPoint));
+                tr.append($("<td style='text-align:left'></td>").html(item.AppealReason).attr("title",item.AppealReason));
+                tr.append($("<td></td>").html(item.MaxFeedBackStr));
+                tr.append($("<td style='text-align:left'></td>").html(item.MaxFeedBackReason).attr("title",item.MaxFeedBackReason));
+                tr.append($("<td></td>").html(item.ShopAcceptStr));
+                tr.append($("<td style='text-align:left'></td>").html(item.ShopAcceptReason).attr("title",item.ShopAcceptReason));
+                tr.append($("<td></td>").html(item.LEXUSFeedBackStr));
+                tr.append($("<td></td>").html(ChangeDateFormat(item.AppealDateTime)));
+                table.append(tr);
+            })
+        }
+
+        function appealEdit(item) {
+            window.location.href = "/Appeal/Edit?ProjectCode=" + item.ProjectCode + "&ShopCode=" + item.ShopCode + "&SubjectCode=" + item.SubjectCode;
+        }
+
+        function appealDel(item) {
+            $.post("/Appeal/Delete", item, function () {
+
+            });
+        }
+        function Download()
+        {
+            var params = getParams();
+            var shopCode = "";
+            var shopCodes = [];
+            $("input[name='nDealerID[]']:checked").each(function () {
+                shopCodes.push($(this).val());
+            });
+            shopCode = shopCodes.join(";");
+            if (typeof (download_file.iframe) == "undefined") {
+                var iframe = document.createElement("iframe");
+                download_file.iframe = iframe;
+                document.body.appendChild(download_file.iframe);
+            }
+            var requestUrl = "DownloadReport?projectCode={0}&areaCode={1}&shopCode={2}&shopCodeKey={3}"
+            download_file.iframe.src = stringFormat(requestUrl,
+                $("#searchDate").find("input:checked").val(),
+                $("input[name='sArea']:checked").val(),
+                shopCode,
+                $("#txtShopCodeOrName").val()
+            );
+            download_file.iframe.style.display = "none";
+        }
+    </script>
+}
+
+<div id="container" class="requir col-md-10">
+    <form id="searchForm" style="display:none">
+        <div id="inputBox" style="display:none;"></div>
+        <input type="hidden" name="type" value="">
+        <table class="table table-bordered">
+            @*<tr id="searchArea">
+            <th width="85" align="center" class="switch">
+                区域<a href="javascript:;" id="toGroup" style="display: none;"></a>
+            </th>
+            <td>
+                <div class="list-inline searchComm">
+                    @foreach (var item in ((LexusReport.Web.ClientService.UserInfoDto)Session["LoginUser"]).BigAreaList)
+                    {
+                        <label bchk="1" class="">
+                            <input type="radio" name="sArea" value="@item.AreaCode">
+                            <font>@item.AreaName</font>
+                        </label>
+                    }
+                </div>
+            </td>
+        </tr>*@
+            <tr id="searchArea" style="display:none;">
+                <th width="85" align="center" class="switch">
+                    区域<a href="javascript:;" id="toGroup" style="display: none;"></a>
+                </th>
+                <td>
+                    <div class="list-inline searchComm">
+                        @foreach (var item in ((LexusReport.Web.ClientService.UserInfoDto)Session["LoginUser"]).BigAreaList)
+                        {
+
+                            <label bchk="1" class="">
+                                <input type="radio" name="sArea" value="@item.AreaCode">
+                                <font>@item.AreaName</font>
+                            </label>
+                        }
+                    </div>
+                </td>
+            </tr>
+            <tr id="searchDealerGroup" style="display:none;">
+                <th width="85" align="center" class="switch">
+                    经销商集团<a href="javascript:;" id="toArea" style="display: none;"></a>
+                </th>
+                <td>
+                    <div class="list-inline searchComm">
+                        @foreach (var item in ((LexusReport.Web.ClientService.UserInfoDto)Session["LoginUser"]).GroupList)
+                        {
+                            <label bchk="1" class="">
+                                <input type="radio" name="sDealerGroup" value="@item.GroupCode">
+                                <font>@item.GroupName</font>
+                            </label>
+                        }
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th align="center">经销店</th>
+                <td id="searchDealer">
+                    <ul class="list-inline searchComm">
+
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <th align="center">期号</th>
+                <td id="searchDate" class="searchComm"></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-center">
+                    <button type="button" class="btn btn-default" id="btnClear">清&nbsp;空</button>
+                    <button type="button" class="btn btn-primary" id="btnSearch">查&nbsp;询</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div class="opens">开启搜索</div>
+    <div class="sechform"><div class="collapse1 text-center"><div class="i"><font></font></div></div></div>
+   
+    <div class="row" style="height:35px;">
+        <div class="col-md-6">
+            <form class="form-inline pull-left mb15">
+                <div class="form-group">
+                    <input type="text" class="form-control" name="sShopCodeOrName" id="txtShopCodeOrName" placeholder="经销店代码/名称" value="">
+                </div>
+                <button type="button" id="btnShopCodeOrName" class="btn btn-default">搜 索</button>
+            </form>
+        </div>
+        <div class="col-md-6 text-right">
+            @if (ViewBag.RoleType == "Shop")
+            {
+                @*<a href="/Appeal/Create" class=" btn btn-primary ">申诉登记</a>*@
+            }
+            <a href="javascript:;" id="btnDownloadReport" class="btn btn-default">导出数据</a>
+        </div>
+    </div>
+    
+    <div class="list" style="overflow:auto;">
+        <div class="table-responsive comm-table-div">
+            <table class="table table-bordered table-set">
+                <thead>
+                    <tr>
+                        <th style="width:60px">操作</th>
+                        <th style="width:80px">经销店代码</th>
+                        <th>经销店名称</th>
+                        <th style="width:60px">题号</th>
+                        <th style="width:300px">指标</th>
+                        <th style="width:250px">申诉理由</th>
+                        <th style="width:120px">明检项目组意见</th>
+                        <th style="width:130px">明检项目组反馈</th>
+                        <th>经销店接受</th>
+                        <th style="width:130px">经销店理由</th>
+                        <th style="width:75px">最终意见</th>
+                        <th>申请日期</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="pagination" class="pull-right">
+        <ul id="pageUl"></ul>
+    </div>
+</div>

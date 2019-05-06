@@ -1,0 +1,255 @@
+﻿@{
+
+    Layout = "~/Views/DOSAudit/_DOSAuditLayout.cshtml";
+    ViewBag.Title = "单店报告";
+}
+@section scripts{
+    <script type="text/javascript" language="javascript">
+        var download_file = { iframe: undefined };
+        var roleType = "@ViewBag.RoleType";
+        var countPerPage = @ViewBag.CountPerPage;
+        var pageCount = 1;
+        var scoreList = [];
+        var curProjectCode = '@ViewBag.CurrentQuarter'
+        $(function() {
+            $('.i,.opens').click(function(){
+                $('.i').children("font").toggleClass("other");
+                $('#searchForm').slideToggle();
+                $('#searchForm').toggleClass('none');
+                $('.opens').slideToggle();
+                $('.opens').toggleClass('none');
+            });
+
+            var div = $("<div class='list-inline'>");
+            $.post("/DOSAudit/ProjectSearch",{},function(data){
+                if(data){
+                    $.each(data,function(i,item){
+                        var chk = $('<input type="radio" name="ProjectCode"/>');
+                        if (curProjectCode == item.ProjectCode) {
+                            chk.prop("checked","checked");
+                        }
+                        var valueF = $('<font>');
+                        var label = $("<label>").append(chk.val(item.ProjectCode)).append(valueF.text(item.ProjectName));
+                        div.append(label);
+
+                    });
+                    $("#searchDate").empty().append(div);
+                    $("input[type=radio]",$("#searchDate")).iCheckParser();
+
+                    $("#btnSearch").click();
+                }
+            });
+
+            //查询
+            $("#btnSearch").click(function () {
+                SearchShopFileInfo();
+            });
+            $("#btnShopCodeOrNameSearch").click(function () {
+                SearchShopFileInfo();
+            });
+            //下载
+            $("#btnDownloadReport").click(function(){
+                updChkedInput();
+                alert("正在下载...");
+
+                var params = getParams();
+                params.type = "QuarterReport";
+                $.get("DownloadFiles",params, function(data){
+                    if(data){
+                        if(data.Status){
+                            window.location.href ="DownloadFile?file="+ data.File;
+                            closealert();
+                        }else{
+                            alert(data.ErrorMsg);
+                        }
+                    }
+                });
+            });
+
+            if(roleType == "S"|| roleType=="Max" || roleType=="LEXUS"){
+                $("#searchArea").show();
+            } else if (roleType == "01") {
+                $("#searchArea").show();
+                var radio = $('#searchArea').find('.searchComm input:radio');
+                $(radio).attr("checked",true);
+                getDealer($(radio).val(), 1);
+            } else if(roleType == "02"){
+                $("#searchArea").hide();
+                var shopList =  '@Html.Raw(Json.Encode(((LexusReport.Web.ClientService.UserInfoDto)Session["LoginUser"]).ShopList))';
+                bindDealer(JSON.parse(shopList));
+            }else if(roleType == "G") {
+                $("#searchArea").hide();
+                $("#searchDealerGroup").hide();
+                $('#searchDealerGroup').find('input').iCheck('check');
+            }else{
+                $("#searchArea").hide();
+
+                var dealerUl = $('#searchDealer').show().find('.searchComm');
+                var chk = $("<input type='checkbox' name='nDealerID[]' value='@ViewBag.ShopCodeForCurrentUser' checked>");
+                var valueF = $('<font>').text('@ViewBag.ShopNameForCurrentUser');
+                var label = $("<label bChk='2' onclick='dealerLiClk(this)' class='dealer-li'></li>").append(chk).append(valueF);
+                dealerUl.append(label);
+            }
+
+        });
+
+        function getParams(){
+            var shopCodes = [];
+            $("input[name='nDealerID[]']:checked").each(function(){
+                shopCodes.push($(this).val());
+            });
+            var areaCode = $("input[name='sArea']:checked").val();
+            var projectCode = $("#searchDate").find("input:checked").val();
+            var groupCode = $("input[name='sDealerGroup']:checked").val();
+
+            return {
+                areaCode: areaCode,
+                groupCode:groupCode,
+                shopCode: shopCodes.join(";"),
+                projectCode: projectCode,
+                shopCodeKey:$("#txtShopCodeOrName").val()
+            };
+        }
+
+        function SearchShopFileInfo(pageNo){
+            updChkedInput();
+
+            var params = getParams();
+            params.pageNum= pageNo?pageNo:1,
+            $.ajax("QuarterSearch", {
+                method: "Post",
+                data:params,
+                type: 'json',
+                success: function (data) {
+                    SearchShopFileInfoSuccess(data);
+                    pageCount = Math.ceil(data.totalCount / countPerPage);
+                    initPages(params.pageNum, pageCount,SearchShopFileInfo);
+                }
+            });
+        }
+
+        function SearchShopFileInfoSuccess(data){
+            var table = $(".comm-table-div>table");
+            table.find("tr:not(:first-child)").remove();
+            var path = "DownloadFile?file=~/ReportFiles/DOSAudit/QuarterReport/";
+            $.each(data.shopInfoList, function (index, item) {
+                var oprations = "";
+                oprations = "<a href='"+path+item.FileName+"'>下载</a>";
+                var tr = $("<tr class='active'></tr>");
+                var col1 = $("<td></td>").html(oprations);
+                var col3 = $("<td></td>").html(item.FileName);
+                var col4 = $("<td class='text-center'></td>").html(item.ShopName);
+                //var col5 = $("<td></td>").html(item.BigAreaCode);
+                //var col6 = $("<td></td>").html(item.GroupName);
+                //var col7 = $("<td></td>").html(item.ShopType);
+                var col8 = $("<td></td>").html(ChangeDateFormat(item.UploadDate));
+                //tr.append(col1).append(col3).append(col4).append(col5).append(col8);
+                tr.append(col1).append(col3).append(col4).append(col8);
+
+                table.append(tr);
+            });
+        }
+    </script>
+
+}
+<div id="container" class="requir col-md-10">
+    <form id="searchForm" style="display:none">
+        <div id="inputBox" style="display:none;"></div>
+        <input type="hidden" name="type" value="">
+        <table class="table table-bordered">
+            @*<tr id="searchArea">
+                <th width="85" align="center" class="switch">
+                    区域<a href="javascript:;" id="toGroup" style="display: none;"></a>
+                </th>
+                <td>
+                    <div class="list-inline searchComm">
+                        @foreach (var item in ((LexusReport.Web.ClientService.UserInfoDto)Session["LoginUser"]).BigAreaList)
+                        {
+                            <label bchk="1" class="">
+                                <input type="radio" name="sArea" value="@item.AreaCode">
+                                <font>@item.AreaName</font>
+                            </label>
+                        }
+                    </div>
+                </td>
+            </tr>*@
+            <tr id="searchArea" style="display:none;">
+                <th width="85" align="center" class="switch">
+                    区域<a href="javascript:;" id="toGroup" style="display: none;"></a>
+                </th>
+                <td>
+                    <div class="list-inline searchComm">
+                        @foreach (var item in ((LexusReport.Web.ClientService.UserInfoDto)Session["LoginUser"]).BigAreaList)
+                        {
+
+                            <label bchk="1" class="">
+                                <input type="radio" name="sArea" value="@item.AreaCode">
+                                <font>@item.AreaName</font>
+                            </label>
+                        }
+                    </div>
+                </td>
+            </tr>
+            <tr id="searchDealerGroup" style="display:none;">
+                <th width="85" align="center" class="switch">
+                    经销商集团<a href="javascript:;" id="toArea" style="display: none;"></a>
+                </th>
+                <td>
+                    <div class="list-inline searchComm">
+                        @foreach (var item in ((LexusReport.Web.ClientService.UserInfoDto)Session["LoginUser"]).GroupList)
+                        {
+                            <label bchk="1" class="">
+                                <input type="radio" name="sDealerGroup" value="@item.GroupCode">
+                                <font>@item.GroupName</font>
+                            </label>
+                        }
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th align="center">经销店</th>
+                <td id="searchDealer">
+                    <ul class="list-inline searchComm"></ul>
+                </td>
+            </tr>
+            <tr>
+                <th align="center">期号</th>
+                <td id="searchDate" class="searchComm"></td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-center">
+                    <button type="button" class="btn btn-default" id="clear">清&nbsp;空</button>
+                    <button type="button" class="btn btn-primary" id="btnSearch">查&nbsp;询</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div class="opens">开启搜索</div>
+    <div class="sechform"><div class="collapse1 text-center"><div class="i"><font></font></div></div></div>
+    <form class="form-inline pull-left mb15">
+        <div class="form-group">
+            <input type="text" class="form-control" name="sShopCodeOrName" id="txtShopCodeOrName" placeholder="经销店代码/名称" value="">
+        </div>
+        <button type="button" id="btnShopCodeOrNameSearch" class="btn btn-default">搜 索</button>
+    </form>
+    <div class="pull-right">
+        <a href="javascript:void()" id="btnDownloadReport" class="btn btn-default">导出文件</a>
+    </div>
+    <div class="table-responsive list comm-table-div">
+        <table class="table table-bordered">
+            <tr>
+                <th width="50">操作</th>
+                <th width="500">文件名</th>
+                <th width="120">经销店名称</th>
+                @*<th width="60">区域</th>*@
+                @*<th width="100">经销店集团</th>
+                    <th width="100">经销店类型</th>*@
+                <th width="100">上传时间</th>
+            </tr>
+        </table>
+    </div>
+
+    <div id="pagination" class="pull-right">
+        <ul id="pageUl"></ul>
+    </div>
+</div>

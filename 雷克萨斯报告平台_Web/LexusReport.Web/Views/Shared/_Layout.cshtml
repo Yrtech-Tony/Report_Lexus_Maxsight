@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title</title>
+    <!-- Bootstrap -->
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="~/Scripts/html5shiv.min.js"></script>
+    <script src="~/Scripts/respond.min.js"></script>
+    <![endif]-->
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <!--[if IE 7]>
+    <link href="~/Content/font-awesome-ie7.min.css" rel="stylesheet" />
+    <![endif]-->
+    @* <link href="~/Content/bootstrap/css/bootstrap.min.css" rel="stylesheet" />*@
+    <link href="~/Content/style.css" rel="stylesheet" />
+    <link href="~/Content/minimal/_all.css" rel="stylesheet" />
+    <link href="~/Content/minimal/blue.css" rel="stylesheet" />
+
+
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/comm.js?20170928"></script>
+    <script src="~/Scripts/bootstrap-paginator.js"></script>
+    <script src="~/Scripts/icheck.js"></script>
+</head>
+<body>
+    <div id="header" class="top inline-block-father">
+        <div class="container">
+            <div class="logo inline-block"><img src="~/Content/images/logo.jpg" onclick="backhome()" style="cursor:pointer" /></div>
+            <div class="login inline-block pull-right">
+                <span>Welcome，@Session["UserId"].ToString()</span>
+                <a href="/Account/Logoff" class="inline-block">退出</a>
+                <a href="/Account/ChangePassword" class="inline-block">修改密码</a>
+            </div>
+            <div class="menu inline-block pull-right" style="min-width:100px;"><a href="#" onclick="backhome()"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> 首页</a></div>
+        </div>
+    </div>
+
+    @RenderBody()
+
+    <div class="bottom text-center">
+        © 2005-2016 雷克萨斯中国 | 丰田汽车（中国）投资有限公司
+    </div>
+
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script>
+        function initPages(curPage, pageCount, search) {
+            $('#pageUl').empty();
+            if (pageCount == 0) return;
+            var options = {
+                bootstrapMajorVersion: 3, //版本
+                currentPage: curPage, //当前页数
+                totalPages: pageCount, //总页数
+                itemTexts: function (type, page, current) {
+                    switch (type) {
+                        case "first":
+                            return "首页";
+                        case "prev":
+                            return "上一页";
+                        case "next":
+                            return "下一页";
+                        case "last":
+                            return "末页";
+                        case "page":
+                            return page;
+                    }
+                },
+                //点击事件，用于通过Ajax来刷新整个list列表
+                onPageClicked: function (event, originalEvent, type, page) {
+                    if (search) {
+                        search(page);
+                    } else {
+                        alert("onPageClicked事件没有设置查询方法");
+                    }
+                }
+            }
+            $('#pageUl').bootstrapPaginator(options);
+        }
+
+        $(function () {
+            $('.modal').modal({ backdrop: 'static', show: false });
+
+            var title = window.document.title;
+            $(".menu .list-group a.list-group-item").each(function () {
+                if ($(this).html() == title) {
+                    $(this).addClass("active");
+                } else {
+                    $(this).removeClass("active");
+                }
+            })
+
+            $(document).ajaxComplete(function (event, result, options) {
+                try {
+                    if (result.responseText.charAt(0) != '{')
+                        return;
+                    var result = $.parseJSON(result.responseText);
+                    if (result.Status == 401) {
+                        alert(result.Message, function () {
+                            window.location.href = "/Account/Login?ReturnUrl=" + result.ReturnUrl;
+                        });
+                    }
+                } catch (ex) {
+
+                }
+            });
+
+            $(document).ajaxError(function (event, response, options) {
+                if (response) {
+                    var data = JSON.parse(response.responseText);
+                    $("#btnLogin").button('reset');
+                    $(".btn-check").button('reset');
+                    alert(data.ErrMsg);
+                }
+            })
+
+            //checkbox 样式
+            $('input[type=checkbox],input[type=radio]').iCheckParser();
+        });
+
+        $.fn.iCheckParser = function () {
+            if (this) {
+                $(this).iCheck({
+                    checkboxClass: 'icheckbox_minimal-blue',
+                    radioClass: 'iradio_minimal-blue',
+                    increaseArea: '20%' // optional
+                })
+            }
+        }
+
+        function backhome() {
+            window.location.href = "/Home/Index";
+        }
+
+        $.fn.serializeObject = function () {
+            var obj = {};
+            var arr = $(this).serializeArray();
+            for (i in arr) {
+                obj[arr[i].name] = arr[i].value;
+            }
+            return obj;
+        }
+    </script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>
