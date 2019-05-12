@@ -49,10 +49,10 @@
       <HintPath>.\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="Infragistics2.Excel.v10.2">
-      <HintPath>..\packages\Infragistics.Excel.10.2\Infragistics2.Excel.v10.2.dll</HintPath>
+      <HintPath>..\packages\Infragistics2.Excel.v10.2.dll</HintPath>
     </Reference>
     <Reference Include="Infragistics3.Documents.Excel.v11.1">
-      <HintPath>..\packages\Infragistics.Excel.10.2\Infragistics3.Documents.Excel.v11.1.dll</HintPath>
+      <HintPath>..\packages\Infragistics3.Documents.Excel.v11.1.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
