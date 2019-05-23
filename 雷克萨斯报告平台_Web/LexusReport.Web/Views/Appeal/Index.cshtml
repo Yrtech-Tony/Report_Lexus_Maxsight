@@ -104,12 +104,13 @@
                 shopCodeKey:$("#txtShopCodeOrName").val()
             };
         }
-
+        var curPage;
         function SearchShopFileInfo(pageNo) {
             updChkedInput();
 
             var params = getParams();
-            params.pageNum = pageNo ? pageNo : 1,
+            params.pageNum = pageNo ? pageNo : 1;
+            curPage=params.pageNum
             $.ajax("/Appeal/Search", {
                 method: "Post",
                 data: params,
@@ -151,7 +152,13 @@
         }
 
         function appealEdit(item) {
-            window.location.href = "/Appeal/Edit?ProjectCode=" + item.ProjectCode + "&ShopCode=" + item.ShopCode + "&SubjectCode=" + item.SubjectCode;
+            var url = "/Appeal/Edit?ProjectCode=" + item.ProjectCode + "&ShopCode=" + item.ShopCode + "&SubjectCode=" + item.SubjectCode;
+            
+            $("#editModal").modal("show");
+            $("#editModal .modal-title").html("申诉编辑");
+            $("#editModal .modal-body").load(url, {}, function () {
+
+            });
         }
 
         function appealDel(item) {
@@ -306,5 +313,18 @@
 
     <div id="pagination" class="pull-right">
         <ul id="pageUl"></ul>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="editModal" tabindex="-1" role="dialog" aria-hidden="false">
+    <div class="modal-dialog modal-lg" style="width:1100px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body" style="display:block;">
+            </div>
+        </div>
     </div>
 </div>

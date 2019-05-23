@@ -1,7 +1,7 @@
 ﻿@model LexusReport.Web.ClientService.AppealDto
 @{
-    Layout = "~/Views/Appeal/_AppealLayout.cshtml";
-    ViewBag.Title = "申诉编辑";
+    //Layout = "~/Views/Appeal/_AppealLayout.cshtml";
+    //ViewBag.Title = "申诉编辑";
 }
 <script src="~/Scripts/oss-upload-direct/lib/crypto1/crypto/crypto.js"></script>
 <script src="~/Scripts/oss-upload-direct/lib/crypto1/hmac/hmac.js"></script>
@@ -80,13 +80,13 @@
                 if (args.fileName.indexOf('_') >= 0) {
                     file = args.fileName.substr(args.fileName.indexOf('_') + 1);
                 }
-                
+
                 $.post("/Appeal/AppealFileSave", {
                     projectCode: $("#ProjectCode").val(),
                     shopCode: $("#ShopCode").val(),
                     subjectCode: $("#SubjectCode").val(),
                     fileName: file,
-                    serverName:args.fileName,
+                    serverName: args.fileName,
                     fileType: roleType,
                 }, function (data) {
                     debugger
@@ -131,14 +131,24 @@
             }
 
             var form = $(this).parents("form");
+            var save = function () {
+                $.post($(form).attr("action"), form.serializeJson(), function (msg) {
+                    if (msg && msg.length > 0) {
+                        alert(msg);
+                        return;
+                    }
+                    $("#editModal").modal("hide");
+                    SearchShopFileInfo(curPage);
+                })
+            }
             if (roleType == "Shop") {
                 confirm("内容保存后将不能修改，是否确认保存？", function () {
-                    form.submit();
+                    save();
                 });
 
             } else {
                 confirm("是否确认保存？", function () {
-                    form.submit();
+                    save();
                 });
                 return false;
             }
@@ -192,9 +202,34 @@
             });
         });
     }
+
+    /**
+ * 将form里面的内容序列化成json
+ * 相同的checkbox用分号拼接起来
+ * */
+    $.fn.serializeJson = function (otherString) {
+        var serializeObj = {},
+          array = this.serializeArray();
+        $(array).each(function () {
+            if (serializeObj[this.name]) {
+                serializeObj[this.name] += ';' + this.value;
+            } else {
+                serializeObj[this.name] = this.value;
+            }
+        });
+
+        if (otherString != undefined) {
+            var otherArray = otherString.split(';');
+            $(otherArray).each(function () {
+                var otherSplitArray = this.split(':');
+                serializeObj[otherSplitArray[0]] = otherSplitArray[1];
+            });
+        }
+        return serializeObj;
+    };
 </script>
 
-<div class="requir col-md-10">
+<div class="requir col-md-12">
     <form action="/Appeal/AppealSave" method="post">
         <input type="hidden" name="add" value="false" />
         <input type="hidden" id="ProjectCode" name="ProjectCode" value="@Model.ProjectCode" />
@@ -270,8 +305,6 @@
                     </td>
                 </tr>
             }
-
-
         </table>
     </form>
 

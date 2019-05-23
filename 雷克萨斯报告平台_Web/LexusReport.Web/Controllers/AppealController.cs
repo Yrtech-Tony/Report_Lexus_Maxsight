@@ -267,12 +267,12 @@ namespace LexusReport.Web.Controllers
                     }
                 }
 
-                return Redirect("Index");
+                return Json("",JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 LogHelper.Error("申诉保存出错", ex);
-                return Redirect("Edit");
+                return Json("申诉保存出错", JsonRequestBehavior.AllowGet);
             }
         }
 
