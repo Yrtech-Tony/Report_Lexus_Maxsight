@@ -1,14 +1,5 @@
 ﻿@model LexusReport.Web.ClientService.AppealDto
-@{
-    //Layout = "~/Views/Appeal/_AppealLayout.cshtml";
-    //ViewBag.Title = "申诉编辑";
-}
-<script src="~/Scripts/oss-upload-direct/lib/crypto1/crypto/crypto.js"></script>
-<script src="~/Scripts/oss-upload-direct/lib/crypto1/hmac/hmac.js"></script>
-<script src="~/Scripts/oss-upload-direct/lib/crypto1/sha1/sha1.js"></script>
-<script src="~/Scripts/oss-upload-direct/lib/plupload-2.1.2/js/plupload.full.min.js"></script>
-<script src="~/Scripts/oss-upload-direct/lib/base64.js"></script>
-<script src="~/Scripts/oss-upload-direct/upload.js?20170928"></script>
+
 <script>
     var userId = "@ViewBag.UserId";
     var roleType = "@ViewBag.RoleType";
@@ -96,7 +87,8 @@
         });
 
 
-        $("#btnSave").click(function () {
+        $("#btnSave").unbind().click(function () {
+            console.log("btnSave")
             //check propertys
             if (ShopAcceptChk != "") {
                 if ((roleType == "S" || roleType == "Max")) {
@@ -130,25 +122,32 @@
                 }
             }
 
-            var form = $(this).parents("form");
-            var save = function () {
-                $.post($(form).attr("action"), form.serializeJson(), function (msg) {
-                    if (msg && msg.length > 0) {
-                        alert(msg);
-                        return;
-                    }
-                    $("#editModal").modal("hide");
-                    SearchShopFileInfo(curPage);
-                })
-            }
+            var form = $("#save-form");
+
             if (roleType == "Shop") {
                 confirm("内容保存后将不能修改，是否确认保存？", function () {
-                    save();
+                    $.post("/Appeal/AppealSave", form.serializeJson(), function (msg) {
+                        if (msg && msg.length > 0) {
+                            alert(msg);
+                            return false;
+                        }
+                        $("#editModal").modal("hide");
+                        $("#editModal .modal-body").empty();
+                        SearchShopFileInfo(curPage);
+                    })
                 });
 
             } else {
                 confirm("是否确认保存？", function () {
-                    save();
+                    $.post("/Appeal/AppealSave", form.serializeJson(), function (msg) {
+                        if (msg && msg.length > 0) {
+                            alert(msg);
+                            return false;
+                        }
+                        $("#editModal").modal("hide");
+                        $("#editModal .modal-body").empty();
+                        SearchShopFileInfo(curPage);
+                    })
                 });
                 return false;
             }
@@ -175,7 +174,7 @@
                     tr.append($("<td>").html(item.InUserId));
                     oprations = "<a href='/Appeal/DownloadOSSFile?filename={1}&downloadName={2}'>下载</a>";
                     if (item.InUserId == userId && roleType != "Shop") {
-                        oprations += " | <a href='javascript:;' onclick='delFile({0},\"{1}\")'>删除</a>";
+                        oprations += " | <a href='javascript:void();' onclick='delFile({0},\"{1}\")'>删除</a>";
                     }
                     oprations = stringFormat(oprations, item.SeqNO, "LexusReport/Appeal/" + item.FileType + "/" + encodeURIComponent(item.ServerFileName), encodeURIComponent(fileDownName));
 
@@ -203,57 +202,31 @@
         });
     }
 
-    /**
- * 将form里面的内容序列化成json
- * 相同的checkbox用分号拼接起来
- * */
-    $.fn.serializeJson = function (otherString) {
-        var serializeObj = {},
-          array = this.serializeArray();
-        $(array).each(function () {
-            if (serializeObj[this.name]) {
-                serializeObj[this.name] += ';' + this.value;
-            } else {
-                serializeObj[this.name] = this.value;
-            }
-        });
-
-        if (otherString != undefined) {
-            var otherArray = otherString.split(';');
-            $(otherArray).each(function () {
-                var otherSplitArray = this.split(':');
-                serializeObj[otherSplitArray[0]] = otherSplitArray[1];
-            });
-        }
-        return serializeObj;
-    };
 </script>
 
 <div class="requir col-md-12">
-    <form action="/Appeal/AppealSave" method="post">
+    <div style="width:100%;padding-bottom:5px;" class="text-right">
+        <a id="btnSave" class="btn btn-primary">保&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;存</a>
+    </div>
+    <form id="save-form">
         <input type="hidden" name="add" value="false" />
         <input type="hidden" id="ProjectCode" name="ProjectCode" value="@Model.ProjectCode" />
         <input type="hidden" id="ShopCode" name="ShopCode" value="@Model.ShopCode" />
         <input type="hidden" id="SubjectCode" name="SubjectCode" value="@Model.SubjectCode" />
-        <div style="width:100%;padding-bottom:5px;" class="text-right">
-            <a id="btnSave" class="btn btn-primary">保&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;存</a>
-        </div>
+
         <table class="table table-bordered" style="margin-bottom:0px;">
             <tr>
                 <th style="width:150px;">期号</th>
                 <td style="width:150px; text-align:center">
                     @Model.ProjectCode
-                    <input type="hidden" name="ProjectCode" value="@Model.ProjectCode" />
                 </td>
                 <th style="width:100px;">经销店</th>
                 <td style="width: 200px; text-align: center">
                     @Model.ShopName
-                    <input type="hidden" name="ShopCode" value="@Model.ShopCode" />
                 </td>
                 <th style="width:100px;">题号</th>
                 <td style="width: 150px; text-align: center">
                     @Model.SubjectCode
-                    <input type="hidden" name="SubjectCode" value="@Model.SubjectCode" />
                 </td>
             </tr>
             <tr>
