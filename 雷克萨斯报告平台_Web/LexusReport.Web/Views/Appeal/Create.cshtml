@@ -36,24 +36,25 @@
         });
         $("#btnSave").click(function () {
             debugger
-            if ($("[name=ProjectCode]:checked").length == 0) {
+            var form = $("#save-form");
+
+            if ($("[name=ProjectCode]:checked", form).length == 0) {
                 alert("期号必须选择");
                 return false;
             }
-            if ($.trim($("#SubjectCode").val()).length == 0) {
+            if ($.trim($("#SubjectCode", form).val()).length == 0) {
                 alert("题号必填");
                 return false;
             }
-            if ($.trim($("#CheckPoint").val()).length == 0) {
+            if ($.trim($("#CheckPoint", form).val()).length == 0) {
                 alert("指标必填");
                 return false;
             }
-            if ($.trim($("#AppealReason").val()).length == 0) {
+            if ($.trim($("#AppealReason", form).val()).length == 0) {
                 alert("申诉理由必填");
                 return false;
             }
 
-            var form = $("#save-form");
             confirm("提交申诉后将不能再修改提交内容，是否确认提交申诉？", function () {
                 $.post("/Appeal/AppealSave", form.serializeJson(), function (msg) {
                     if (msg && msg.length > 0) {
