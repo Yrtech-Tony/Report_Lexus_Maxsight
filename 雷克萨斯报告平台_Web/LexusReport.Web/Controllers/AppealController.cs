@@ -159,7 +159,7 @@ namespace LexusReport.Web.Controllers
             ViewBag.ProjectDtos = _client.ProjectSearch();
             ViewBag.ShopCode = shopCode;
             ViewBag.CurrentQuarter = ConvertMonthToQuarter();
-            return View(dto);
+            return PartialView(dto);
         }
         public ActionResult Edit(string projectCode, string shopCode, string subjectCode)
         {
@@ -169,7 +169,7 @@ namespace LexusReport.Web.Controllers
             ViewBag.RoleType = UserInfo.RoleTypeCode;
             ViewBag.UserId = UserInfo.UserId;
 
-            return View(dto);
+            return PartialView("Edit", dto);
         }
 
 

@@ -9,6 +9,13 @@
     }
 </style>
 @section scripts{
+    <script src="~/Scripts/oss-upload-direct/lib/crypto1/crypto/crypto.js"></script>
+    <script src="~/Scripts/oss-upload-direct/lib/crypto1/hmac/hmac.js"></script>
+    <script src="~/Scripts/oss-upload-direct/lib/crypto1/sha1/sha1.js"></script>
+    <script src="~/Scripts/oss-upload-direct/lib/plupload-2.1.2/js/plupload.full.min.js"></script>
+    <script src="~/Scripts/oss-upload-direct/lib/base64.js"></script>
+    <script src="~/Scripts/oss-upload-direct/upload.js?20170928"></script>
+
     <script type="text/javascript" language="javascript">
         var download_file = { iframe: undefined };
         var roleType = "@ViewBag.RoleType";
@@ -84,7 +91,15 @@
                 dealerUl.append(label);
             }
 
+            $("#createBtn").click(function(){
+                $("#editModal").modal("show");
+                $("#editModal .modal-title").html("申诉登记");
+                $("#editModal .modal-body").empty();
+                $("#editModal .modal-body").load("/Appeal/Create", {}, function () {
 
+                });
+                return false;
+            });
         });
 
         function getParams() {
@@ -153,9 +168,10 @@
 
         function appealEdit(item) {
             var url = "/Appeal/Edit?ProjectCode=" + item.ProjectCode + "&ShopCode=" + item.ShopCode + "&SubjectCode=" + item.SubjectCode;
-            
+
             $("#editModal").modal("show");
             $("#editModal .modal-title").html("申诉编辑");
+            $("#editModal .modal-body").empty();
             $("#editModal .modal-body").load(url, {}, function () {
 
             });
@@ -189,6 +205,32 @@
             );
             download_file.iframe.style.display = "none";
         }
+
+
+        /**
+     * 将form里面的内容序列化成json
+     * 相同的checkbox用分号拼接起来
+     * */
+        $.fn.serializeJson = function (otherString) {
+            var serializeObj = {},
+              array = this.serializeArray();
+            $(array).each(function () {
+                if (serializeObj[this.name]) {
+                    serializeObj[this.name] += ';' + this.value;
+                } else {
+                    serializeObj[this.name] = this.value;
+                }
+            });
+
+            if (otherString != undefined) {
+                var otherArray = otherString.split(';');
+                $(otherArray).each(function () {
+                    var otherSplitArray = this.split(':');
+                    serializeObj[otherSplitArray[0]] = otherSplitArray[1];
+                });
+            }
+            return serializeObj;
+        };
     </script>
 }
 
@@ -198,21 +240,21 @@
         <input type="hidden" name="type" value="">
         <table class="table table-bordered">
             @*<tr id="searchArea">
-            <th width="85" align="center" class="switch">
-                区域<a href="javascript:;" id="toGroup" style="display: none;"></a>
-            </th>
-            <td>
-                <div class="list-inline searchComm">
-                    @foreach (var item in ((LexusReport.Web.ClientService.UserInfoDto)Session["LoginUser"]).BigAreaList)
-                    {
-                        <label bchk="1" class="">
-                            <input type="radio" name="sArea" value="@item.AreaCode">
-                            <font>@item.AreaName</font>
-                        </label>
-                    }
-                </div>
-            </td>
-        </tr>*@
+                    <th width="85" align="center" class="switch">
+                        区域<a href="javascript:;" id="toGroup" style="display: none;"></a>
+                    </th>
+                    <td>
+                        <div class="list-inline searchComm">
+                            @foreach (var item in ((LexusReport.Web.ClientService.UserInfoDto)Session["LoginUser"]).BigAreaList)
+                            {
+                                <label bchk="1" class="">
+                                    <input type="radio" name="sArea" value="@item.AreaCode">
+                                    <font>@item.AreaName</font>
+                                </label>
+                            }
+                        </div>
+                    </td>
+                </tr>*@
             <tr id="searchArea" style="display:none;">
                 <th width="85" align="center" class="switch">
                     区域<a href="javascript:;" id="toGroup" style="display: none;"></a>
@@ -249,9 +291,7 @@
             <tr>
                 <th align="center">经销店</th>
                 <td id="searchDealer">
-                    <ul class="list-inline searchComm">
-
-                    </ul>
+                    <ul class="list-inline searchComm"></ul>
                 </td>
             </tr>
             <tr>
@@ -268,7 +308,7 @@
     </form>
     <div class="opens">开启搜索</div>
     <div class="sechform"><div class="collapse1 text-center"><div class="i"><font></font></div></div></div>
-   
+
     <div class="row" style="height:35px;">
         <div class="col-md-6">
             <form class="form-inline pull-left mb15">
@@ -281,12 +321,12 @@
         <div class="col-md-6 text-right">
             @if (ViewBag.RoleType == "Shop")
             {
-                <a href="/Appeal/Create" class=" btn btn-primary ">申诉登记</a>
+                <a id="createBtn" href="#" class="btn btn-primary ">申诉登记</a>
             }
             <a href="javascript:;" id="btnDownloadReport" class="btn btn-default">导出数据</a>
         </div>
     </div>
-    
+
     <div class="list" style="overflow:auto;">
         <div class="table-responsive comm-table-div">
             <table class="table table-bordered table-set">

@@ -432,14 +432,15 @@ window.alert = function (msg, call) {
 
 //结束函数 submitForm
 window.confirm = function (msg, confirmCall, cancelCall) {
-    if ($('#confirmModal').length == 0) {
-        $('body').append('<div id="confirmModal" class="modal fade">' +
-            '<div class="modal-dialog modal-sm"><div class="modal-content">' +
-            '<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
-            '<span aria-hidden="true">&times;</span></button><h4 class="modal-title">提示</h4></div><div class="modal-body"></div>' +
-            '<div class="modal-footer"><button type="button" class="btn btn-default ok-btn" data-dismiss="modal">确定</button>' +
-            '<button type="button" class="btn btn-primary cancel-btn" data-dismiss="modal">取消</button></div></div></div></div>');
+    if ($('#confirmModal').length > 0) {
+        $('#confirmModal').remove();
     }
+    $('body').append('<div id="confirmModal" class="modal fade">' +
+           '<div class="modal-dialog modal-sm"><div class="modal-content">' +
+           '<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+           '<span aria-hidden="true">&times;</span></button><h4 class="modal-title">提示</h4></div><div class="modal-body"></div>' +
+           '<div class="modal-footer"><button type="button" class="btn btn-default ok-btn" data-dismiss="modal">确定</button>' +
+           '<button type="button" class="btn btn-primary cancel-btn" data-dismiss="modal">取消</button></div></div></div></div>');
     //
     $('#confirmModal .modal-body').html('<p id="confirm_msg">' + msg + '</p>');
     $('#confirmModal').modal('show');
