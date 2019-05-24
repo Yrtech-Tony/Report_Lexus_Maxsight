@@ -70,7 +70,7 @@ namespace LexusReport.Web.Controllers
             catch (Exception ex)
             {
                 LogHelper.Error("下载申诉记录出错", ex);
-            }           
+            }
 
         }
         private void DownloadReport_FillReport(Worksheet sheet, List<AppealDto> staffInfoList)
@@ -189,7 +189,7 @@ namespace LexusReport.Web.Controllers
         public ActionResult AppealSave(AppealDto dto, bool add)
         {
             try
-            {               
+            {
                 if (add)
                 {
                     string shopCode = UserInfo.ShopList[0].ShopCode;
@@ -201,14 +201,14 @@ namespace LexusReport.Web.Controllers
                     bool areaNeedChk = dto.AreaNeedChk.HasValue ? dto.AreaNeedChk.Value : false;
                     if (UserInfo.RoleTypeCode == "Max")
                     {
-                        if (dto.LEXUSFeedBack.HasValue)
-                        {
-                            _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "LEXUS", dto.LEXUSFeedBack, dto.LEXUSFeedBackReason, UserInfo.UserId, areaNeedChk);
-                        }
-                        else
-                        {
-                            _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "Max", dto.MaxFeedBack, dto.MaxFeedBackReason, UserInfo.UserId, areaNeedChk);
-                        }
+                        //if (dto.LEXUSFeedBack.HasValue)
+                        //{
+                        //    _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "LEXUS", dto.LEXUSFeedBack, dto.LEXUSFeedBackReason, UserInfo.UserId, areaNeedChk);
+                        //}
+                        //else
+                        //{
+                        _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "Max", dto.MaxFeedBack, dto.MaxFeedBackReason, UserInfo.UserId, areaNeedChk);
+                        //}
                     }
                     else if (UserInfo.RoleTypeCode == "Shop")
                     {
@@ -251,10 +251,10 @@ namespace LexusReport.Web.Controllers
                         {
                             _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "Shop", dto.ShopAcceptChk, dto.ShopAcceptReason, UserInfo.UserId, areaNeedChk);
                         }
-                        if (dto.LEXUSFeedBack.HasValue)
-                        {
-                            _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "LEXUS", dto.LEXUSFeedBack, dto.LEXUSFeedBackReason, UserInfo.UserId, areaNeedChk);
-                        }
+                        //if (dto.LEXUSFeedBack.HasValue)
+                        //{
+                        //    _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "LEXUS", dto.LEXUSFeedBack, dto.LEXUSFeedBackReason, UserInfo.UserId, areaNeedChk);
+                        //}
                         if (dto.MaxFeedBack.HasValue)
                         {
                             _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "Max", dto.MaxFeedBack, dto.MaxFeedBackReason, UserInfo.UserId, areaNeedChk);
@@ -267,7 +267,7 @@ namespace LexusReport.Web.Controllers
                     }
                 }
 
-                return Json("",JsonRequestBehavior.AllowGet);
+                return Json("", JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -282,7 +282,7 @@ namespace LexusReport.Web.Controllers
             return Json(lst, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult AppealFileSave(string projectCode, string shopCode, string subjectCode, string fileName,string serverName, string fileType)
+        public ActionResult AppealFileSave(string projectCode, string shopCode, string subjectCode, string fileName, string serverName, string fileType)
         {
             _client.AppealFileSave(0, projectCode, shopCode, subjectCode, fileType, fileName, serverName, UserInfo.UserId);
             return Json("", JsonRequestBehavior.AllowGet);
@@ -292,10 +292,10 @@ namespace LexusReport.Web.Controllers
         {
             try
             {
-                
+
                 OssClient ossClient = new OssClient(endpoin, accessid, accessKey);
                 OssObject file = ossClient.GetObject("vgic", filename);
-                downloadName = string.IsNullOrEmpty(downloadName)?Path.GetFileName(filename):downloadName;
+                downloadName = string.IsNullOrEmpty(downloadName) ? Path.GetFileName(filename) : downloadName;
                 return File(file.Content, "application/octet-stream", downloadName);
             }
             catch (Exception ex)
