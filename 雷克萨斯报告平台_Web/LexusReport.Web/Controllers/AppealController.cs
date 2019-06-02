@@ -251,10 +251,10 @@ namespace LexusReport.Web.Controllers
                         {
                             _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "Shop", dto.ShopAcceptChk, dto.ShopAcceptReason, UserInfo.UserId, areaNeedChk);
                         }
-                        //if (dto.LEXUSFeedBack.HasValue)
-                        //{
-                        //    _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "LEXUS", dto.LEXUSFeedBack, dto.LEXUSFeedBackReason, UserInfo.UserId, areaNeedChk);
-                        //}
+                        if (dto.LEXUSFeedBack.HasValue)
+                        {
+                            _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "LEXUS", dto.LEXUSFeedBack, dto.LEXUSFeedBackReason, UserInfo.UserId, areaNeedChk);
+                        }
                         if (dto.MaxFeedBack.HasValue)
                         {
                             _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "Max", dto.MaxFeedBack, dto.MaxFeedBackReason, UserInfo.UserId, areaNeedChk);
