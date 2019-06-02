@@ -33,6 +33,7 @@ namespace LexusReport.Web.Controllers
         public BaseController()
         {
             _client = new ServiceSoapClient("ServiceSoap");
+           
         }
 
         protected UserInfoDto UserInfo

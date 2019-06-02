@@ -34,6 +34,10 @@ namespace LexusReport.Web.Controllers
 
         public ActionResult Search(string projectCode = "", string areaCode = "", string groupCode = "", string shopCode = "", string shopCodeKey = "", int pageNum = 1)
         {
+            if (UserInfo != null && UserInfo.RoleTypeCode == "Max")
+            {
+                _client.Endpoint.Address = new System.ServiceModel.EndpointAddress("http://60.205.5.60:8000/LEXUSReportMysteryServer/service.asmx");
+            }
             var lst = _client.AppealSearch(projectCode, areaCode, smallAreaCodeGet(), groupCode, shopCode, shopCodeKey, pageNum, _countPerPage);
             int total = _client.AppealSearchCount(projectCode, areaCode, smallAreaCodeGet(), groupCode, shopCode, shopCodeKey);
             CalcPages(total);
@@ -201,14 +205,14 @@ namespace LexusReport.Web.Controllers
                     bool areaNeedChk = dto.AreaNeedChk.HasValue ? dto.AreaNeedChk.Value : false;
                     if (UserInfo.RoleTypeCode == "Max")
                     {
-                        //if (dto.LEXUSFeedBack.HasValue)
-                        //{
-                        //    _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "LEXUS", dto.LEXUSFeedBack, dto.LEXUSFeedBackReason, UserInfo.UserId, areaNeedChk);
-                        //}
-                        //else
-                        //{
-                        _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "Max", dto.MaxFeedBack, dto.MaxFeedBackReason, UserInfo.UserId, areaNeedChk);
-                        //}
+                        if (dto.LEXUSFeedBack.HasValue)
+                        {
+                            _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "LEXUS", dto.LEXUSFeedBack, dto.LEXUSFeedBackReason, UserInfo.UserId, areaNeedChk);
+                        }
+                        else
+                        {
+                            _client.AppealFeedBackSave(dto.ProjectCode, shopCode, dto.SubjectCode, "Max", dto.MaxFeedBack, dto.MaxFeedBackReason, UserInfo.UserId, areaNeedChk);
+                        }
                     }
                     else if (UserInfo.RoleTypeCode == "Shop")
                     {
