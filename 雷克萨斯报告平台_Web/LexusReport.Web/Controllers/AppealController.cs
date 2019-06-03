@@ -34,10 +34,10 @@ namespace LexusReport.Web.Controllers
 
         public ActionResult Search(string projectCode = "", string areaCode = "", string groupCode = "", string shopCode = "", string shopCodeKey = "", int pageNum = 1)
         {
-            if (UserInfo != null && UserInfo.RoleTypeCode == "Max")
-            {
-                _client.Endpoint.Address = new System.ServiceModel.EndpointAddress("http://60.205.5.60:8000/LEXUSReportMysteryServer/service.asmx");
-            }
+            //if (UserInfo != null && UserInfo.RoleTypeCode == "Max")
+            //{
+            //    _client.Endpoint.Address = new System.ServiceModel.EndpointAddress("http://60.205.5.60:8000/LEXUSReportMysteryServer/service.asmx");
+            //}
             var lst = _client.AppealSearch(projectCode, areaCode, smallAreaCodeGet(), groupCode, shopCode, shopCodeKey, pageNum, _countPerPage);
             int total = _client.AppealSearchCount(projectCode, areaCode, smallAreaCodeGet(), groupCode, shopCode, shopCodeKey);
             CalcPages(total);
