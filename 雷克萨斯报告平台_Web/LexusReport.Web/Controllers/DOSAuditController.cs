@@ -42,7 +42,7 @@ namespace LexusReport.Web.Controllers
             }
             return View();
         }
-       
+
         /// <summary>
         /// 季度报告查询分页
         /// </summary>
@@ -53,39 +53,24 @@ namespace LexusReport.Web.Controllers
         /// <param name="quarter"></param>
         /// <param name="pageNum"></param>
         /// <returns></returns>
-        public ActionResult QuarterSearch(string areaCode, string groupCode, string shopCode, string projectCode,string shopCodeKey, int pageNum)
+        public ActionResult QuarterSearch(string areaCode, string groupCode, string shopCode, string projectCode, string shopCodeKey, int pageNum)
         {
-          //  projectCode = "2017Q1";
-            string reportPath = HttpContext.Server.MapPath("~/ReportFiles/DOSAudit/QuarterReport");//季度报告所在的文件路径
-            List<ShopDto> resultListTemp = GetFileList(areaCode, groupCode, shopCode, projectCode,shopCodeKey, reportPath);//获取符合条件的所有季度报告
+            //  projectCode = "2017Q1";
+            string reportPath = "";
+            string downLoadPath = "";
+            if (ReportType == "Mystery" || UserInfo.RoleTypeCode == "Max_Mystery")
+            {
+                reportPath = HttpContext.Server.MapPath("~/ReportFiles/DOSAudit/QuarterReport_Mystery");//季度报告所在的文件路径 
+                downLoadPath = "DownloadFile?file=~/ReportFiles/DOSAudit/QuarterReport_Mystery/";
+            }
+            else
+            {
+                reportPath = HttpContext.Server.MapPath("~/ReportFiles/DOSAudit/QuarterReport");//季度报告所在的文件路径
+                downLoadPath = "DownloadFile?file=~/ReportFiles/DOSAudit/QuarterReport/";
+            }
+            List<ShopDto> resultListTemp = GetFileList(areaCode, groupCode, shopCode, projectCode, shopCodeKey, reportPath);//获取符合条件的所有季度报告
             List<ShopDto> resultList = ((from u in resultListTemp orderby u.ShopCode select u).Skip(_countPerPage * (pageNum - 1)).Take(_countPerPage)).ToList<ShopDto>();//分页
-            return Json(new { shopInfoList = resultList, totalCount = resultListTemp.Count }, JsonRequestBehavior.AllowGet);
-        }
-        #endregion
-        #region 申诉结果反馈
-        public ActionResult Complaint()
-        {
-            ViewBag.CountPerPage = _countPerPage;
-            ViewBag.RoleType = UserInfo.RoleTypeCode;
-            ViewBag.CurrentQuarter = ConvertMonthToQuarter();
-            ViewBag.ShopCodeForCurrentUser = UserInfo.ShopList[0].ShopCode;
-            ViewBag.ShopNameForCurrentUser = UserInfo.ShopList[0].ShopName;
-            if (UserInfo.GroupList.Count() > 0)
-            {
-                ViewBag.GroupCodeForCurrentUser = UserInfo.GroupList[0].GroupCode;
-                ViewBag.GroupNameForCurrentUser = UserInfo.GroupList[0].GroupName;
-            }
-            if (UserInfo.SmallAreaList.Count() > 0)
-            {
-                //ViewBag.AreaCodeForCurrentUser = UserInfo.SmallAreaList[0].AreaCode;
-                //ViewBag.AreaNameForCurrentUser = UserInfo.SmallAreaList[0].AreaName;
-            }
-            if (UserInfo.BigAreaList.Count() > 0)
-            {
-                ViewBag.AreaCodeForCurrentUser = UserInfo.BigAreaList[0].AreaCode;
-                ViewBag.AreaNameForCurrentUser = UserInfo.BigAreaList[0].AreaName;
-            }
-            return View();
+            return Json(new { shopInfoList = resultList, totalCount = resultListTemp.Count, downLoadPath = downLoadPath }, JsonRequestBehavior.AllowGet);
         }
         #endregion
         #region 指导手册
@@ -98,7 +83,19 @@ namespace LexusReport.Web.Controllers
         }
         public ActionResult DealerGuideSearch(int pageNum)
         {
-            string reportPath = HttpContext.Server.MapPath("~/ReportFiles/DOSAudit/DealerGuide");//指导手册所在的文件路径
+            string reportPath = "";
+            string downLoadPath = "";
+            if (ReportType == "Mystery" || UserInfo.RoleTypeCode == "Max_Mystery")
+            {
+                reportPath = HttpContext.Server.MapPath("~/ReportFiles/DOSAudit/DealerGuide_Mystery");//指导手册所在的文件路径
+                downLoadPath = "DownloadFile?file=~/ReportFiles/DOSAudit/DealerGuide_Mystery/";
+            }
+            else
+            {
+                reportPath = HttpContext.Server.MapPath("~/ReportFiles/DOSAudit/DealerGuide");//指导手册所在的文件路径
+                downLoadPath = "DownloadFile?file=~/ReportFiles/DOSAudit/DealerGuide/";
+            }
+
             List<ShopDto> resultListTemp = new List<ShopDto>();
             DirectoryInfo dataDir = new DirectoryInfo(reportPath);
             FileInfo[] filesInfos = dataDir.GetFiles();
@@ -112,7 +109,7 @@ namespace LexusReport.Web.Controllers
                 });
             }
             List<ShopDto> resultList = ((from u in resultListTemp orderby u.ShopCode select u).Skip(_countPerPage * (pageNum - 1)).Take(_countPerPage)).ToList<ShopDto>();//分页
-            return Json(new { shopInfoList = resultList, totalCount = resultListTemp.Count }, JsonRequestBehavior.AllowGet);
+            return Json(new { shopInfoList = resultList, totalCount = resultListTemp.Count, downLoadPath = downLoadPath }, JsonRequestBehavior.AllowGet);
         }
         #endregion
         #region 检查标准
@@ -125,7 +122,18 @@ namespace LexusReport.Web.Controllers
         }
         public ActionResult InspectionSearch(int pageNum)
         {
-            string reportPath = HttpContext.Server.MapPath("~/ReportFiles/DOSAudit/Inspection");//检查标准路径
+            string reportPath = "";
+            string downLoadPath = "";
+            if (ReportType == "Mystery" || UserInfo.RoleTypeCode == "Max_Mystery")
+            {
+                reportPath = HttpContext.Server.MapPath("~/ReportFiles/DOSAudit/Inspection_Mystery");//检查标准路径
+                downLoadPath = "DownloadFile?file=~/ReportFiles/DOSAudit/Inspection_Mystery/";
+            }
+            else
+            {
+                reportPath = HttpContext.Server.MapPath("~/ReportFiles/DOSAudit/Inspection");//检查标准路径
+                downLoadPath = "DownloadFile?file=~/ReportFiles/DOSAudit/Inspection/";
+            }
             List<ShopDto> resultListTemp = new List<ShopDto>();
             DirectoryInfo dataDir = new DirectoryInfo(reportPath);
             FileInfo[] filesInfos = dataDir.GetFiles();
@@ -139,12 +147,13 @@ namespace LexusReport.Web.Controllers
                 });
             }
             List<ShopDto> resultList = ((from u in resultListTemp orderby u.ShopCode select u).Skip(_countPerPage * (pageNum - 1)).Take(_countPerPage)).ToList<ShopDto>();//分页
-            return Json(new { shopInfoList = resultList, totalCount = resultListTemp.Count }, JsonRequestBehavior.AllowGet);
+            return Json(new { shopInfoList = resultList, totalCount = resultListTemp.Count, downLoadPath = downLoadPath }, JsonRequestBehavior.AllowGet);
         }
         #endregion
         #region 获取文件列表 季度或者月度
-        public List<ShopDto> GetFileList(string areaCode, string groupCode, string shopCode, string projectCode,string shopCodeKey, string reportPath)
+        public List<ShopDto> GetFileList(string areaCode, string groupCode, string shopCode, string projectCode, string shopCodeKey, string reportPath)
         {
+            SetServiceUrl();
             List<ShopDto> resultListTemp = new List<ShopDto>();
             List<ShopDto> list = _client.DSATReport_SearchReportShopInfo(areaCode, smallAreaCodeGet(), groupCode, shopCode, shopCodeKey, 1, 100000).ToList();
             DirectoryInfo dataDir = new DirectoryInfo(reportPath);
@@ -296,13 +305,23 @@ namespace LexusReport.Web.Controllers
 
         #endregion
         #region 打包下载文件
-        public ActionResult DownloadFiles(string areaCode, string groupCode, string shopCode, string projectCode,string shopCodeKey, string type)
+        public ActionResult DownloadFiles(string areaCode, string groupCode, string shopCode, string projectCode, string shopCodeKey, string reportType)
         {
             //projectCode = "2017Q1";
             try
             {
+                string type = "";
+                 
                 string reportPath = HttpContext.Server.MapPath("~/ReportFiles/DOSAudit/");
-                List<ShopDto> resultListTemp = GetFileList(areaCode, groupCode, shopCode, projectCode,shopCodeKey, reportPath + @"\" + type);
+                if (ReportType == "Mystery" || UserInfo.RoleTypeCode == "Max_Mystery")
+                {
+                    type = "QuarterReport_Mystery";
+                }
+                else
+                {
+                    type = "QuarterReport";
+                }
+                List<ShopDto> resultListTemp = GetFileList(areaCode, groupCode, shopCode, projectCode, shopCodeKey, reportPath + @"\" + type);
                 string temp = Path.Combine(reportPath, @"TEMP\" + "LEXUSReport" + DateTime.Now.ToString("yyyyMMddHHmmssfff") + ".zip");
                 if (System.IO.File.Exists(temp))
                 {
@@ -320,9 +339,9 @@ namespace LexusReport.Web.Controllers
                 return Json(new { Status = false, ErrorMsg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-       
+
         #endregion
 
-        
+
     }
 }

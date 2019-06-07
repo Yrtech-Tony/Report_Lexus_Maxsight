@@ -26,6 +26,7 @@ namespace LexusReport.Web.Controllers
     public class BaseController : Controller
     {
         protected ServiceSoapClient _client;
+       
         protected int _countPerPage = 15;
         protected const string accessid = "3JkljJxvXgjLz80X";
         protected const string accessKey = "L2ERHORPk3WkjqfGUb27RlxvT8x5f3";
@@ -33,7 +34,14 @@ namespace LexusReport.Web.Controllers
         public BaseController()
         {
             _client = new ServiceSoapClient("ServiceSoap");
-           
+        }
+        protected void SetServiceUrl()
+        {
+            // 登陆者权限是密采审核或者是经销商登陆选择了神秘客的时候，链接地址设置为LEXUSReportMysteryServer
+            if ((UserInfo != null && UserInfo.RoleTypeCode == "Max_Mystery")|| ReportType == "Mystery")
+            {
+                _client.Endpoint.Address = new System.ServiceModel.EndpointAddress("http://60.205.5.60:8000/LEXUSReportMysteryServer/service.asmx");
+            }
         }
 
         protected UserInfoDto UserInfo
@@ -43,7 +51,13 @@ namespace LexusReport.Web.Controllers
                 return (UserInfoDto)Session["LoginUser"];
             }
         }
-
+        protected string ReportType
+        {
+            get
+            {
+                return Session["ReportType"].ToString();
+            }
+        }
         protected void CalcPages(int total)
         {
             int pages = total % _countPerPage == 0 ? total / _countPerPage : (total / _countPerPage + 1);

@@ -544,6 +544,7 @@
     <Content Include="Views\DOSAudit\_DOSAuditLayout.cshtml" />
     <Content Include="Views\Appeal\AppealCountByArea.cshtml" />
     <None Include="Service References\ClientService\service11.wsdl" />
+    <Content Include="Views\Home\ReportTypeSelect.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

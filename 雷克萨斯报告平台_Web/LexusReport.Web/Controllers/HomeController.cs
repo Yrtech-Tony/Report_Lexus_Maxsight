@@ -8,10 +8,17 @@ namespace LexusReport.Web.Controllers
 {
     public class HomeController : BaseController
     {
-        public ActionResult Index()
+        public ActionResult Index(string reportType)
         {
             ViewBag.Password = UserInfo.Password;
+            Session["ReportType"] = reportType;
             return View();
         }
+        public ActionResult ReportTypeSelect()
+        {
+            //ViewBag.ReportType = reportType;
+            return View();
+        }
+        
     }
 }

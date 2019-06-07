@@ -28,7 +28,7 @@ namespace LexusReport.Web.Controllers
 
             if (loginStatus == "1")
             {
-                return Json(new { Status = false, sErrMsg = "用户名不存在！" });
+                return Json(new { Status = false, sErrMsg = "用户名不存在`！" });
             }
             else if (loginStatus == "2")
             {
@@ -42,6 +42,10 @@ namespace LexusReport.Web.Controllers
                 FormsAuthentication.SetAuthCookie(userInfo.UserId, false);
                 Session["LoginUser"] = userInfo;
                 Session["UserId"] = userInfo.UserId;
+                if (userInfo.RoleTypeCode == "Shop")
+                {
+                    ReturnUrl = "/Home/ReportTypeSelect";
+                }
                 return Json(new { Status = true, sRedirectURL = HttpContext.Request.Url.GetLeftPart(UriPartial.Authority) + ReturnUrl });
             }
             else

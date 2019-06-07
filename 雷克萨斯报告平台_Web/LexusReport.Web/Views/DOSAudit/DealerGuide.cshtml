@@ -51,10 +51,10 @@
         function SearchShopFileInfoSuccess(data){
             var table = $(".comm-table-div>table");
             table.find("tr:not(:first-child)").remove();
-            var path = "DownloadFile?file=~/ReportFiles/DOSAudit/DealerGuide/";
+            //var path = "DownloadFile?file=~/ReportFiles/DOSAudit/DealerGuide/";
             $.each(data.shopInfoList, function (index, item) {
                 var oprations = "";
-                oprations = "<a href='"+path+item.FileName+"'>下载</a>";
+                oprations = "<a href='"+data.downLoadPath+item.FileName+"'>下载</a>";
                 var tr = $("<tr class='active'></tr>");
                 var col1 = $("<td></td>").html(oprations);
                 var col2 = $("<td class='textleft'></td>").html(item.FileName);

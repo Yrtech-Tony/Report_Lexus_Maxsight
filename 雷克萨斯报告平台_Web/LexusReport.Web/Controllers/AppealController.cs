@@ -13,7 +13,6 @@ namespace LexusReport.Web.Controllers
 {
     public class AppealController : BaseController
     {
-
         // GET: Appeal
         public ActionResult Index()
         {
@@ -28,16 +27,12 @@ namespace LexusReport.Web.Controllers
                 ViewBag.AreaCodeForCurrentUser = UserInfo.SmallAreaList[0].AreaCode;
                 ViewBag.AreaNameForCurrentUser = UserInfo.SmallAreaList[0].AreaName;
             }
-
             return View();
         }
 
         public ActionResult Search(string projectCode = "", string areaCode = "", string groupCode = "", string shopCode = "", string shopCodeKey = "", int pageNum = 1)
         {
-            //if (UserInfo != null && UserInfo.RoleTypeCode == "Max")
-            //{
-            //    _client.Endpoint.Address = new System.ServiceModel.EndpointAddress("http://60.205.5.60:8000/LEXUSReportMysteryServer/service.asmx");
-            //}
+            SetServiceUrl();
             var lst = _client.AppealSearch(projectCode, areaCode, smallAreaCodeGet(), groupCode, shopCode, shopCodeKey, pageNum, _countPerPage);
             int total = _client.AppealSearchCount(projectCode, areaCode, smallAreaCodeGet(), groupCode, shopCode, shopCodeKey);
             CalcPages(total);
@@ -48,6 +43,7 @@ namespace LexusReport.Web.Controllers
         {
             try
             {
+                SetServiceUrl();
                 areaCode = areaCode == "undefined" ? "" : areaCode;
 
                 Workbook book = Workbook.Load(Server.MapPath("~") + @"Content\Excel\" + "申诉列表.xlsx", false);

@@ -6,31 +6,10 @@
     <script type="text/javascript" language="javascript">
         var download_file = { iframe: undefined };
         var countPerPage = @ViewBag.CountPerPage;
+        var reportType = "@ViewBag.ReportType";
         var pageCount = 1;
         $(function() {
             $(".menu .list-group a.list-group-item").eq(1).addClass("list-group-active");
-
-            //$("#btnDownloadReport").click(function(){
-
-            //    if (typeof (download_file.iframe) == "undefined") {
-            //        var iframe = document.createElement("iframe");
-            //        download_file.iframe = iframe;
-            //        document.body.appendChild(download_file.iframe);
-            //    }
-            //    var requestUrl = "DownloadFiles?areaCode={0}&groupCode={1}&shopCode={2}&year={3}&quarterormonth={4}&type=DealerGuide";
-            //    var area =  $("input[name='sArea'][checked='checked']").val();
-            //    var dGroup =  $("input[name='sDealerGroup[]'][checked='checked']").val();
-            //    download_file.iframe.src = stringFormat(requestUrl,
-            //       area?area:"",
-            //       dGroup?dGroup:"",
-            //       shopCode,
-            //       $("input[name='nYear'][checked='checked']").val(),
-            //       $("input[name='nDateSort'][checked='checked']").val()
-            //    );
-            //    download_file.iframe.style.display = "none";
-            //});
-
-
             SearchShopFileInfo();
         });
 
@@ -40,7 +19,7 @@
             $.ajax("InspectionSearch", {
                 method: "GET",
                 type: 'json',
-                data:{pageNum:pageNo},
+                data:{pageNum:pageNo,reportType:reportType},
                 success: function (data) {
                     SearchShopFileInfoSuccess(data);
                     pageCount = Math.ceil(data.totalCount / countPerPage);
@@ -52,10 +31,10 @@
         function SearchShopFileInfoSuccess(data){
             var table = $(".comm-table-div>table");
             table.find("tr:not(:first-child)").remove();
-            var path = "DownloadFile?file=~/ReportFiles/DOSAudit/Inspection/";
+            //var path = "DownloadFile?file=~/ReportFiles/DOSAudit/Inspection/";
             $.each(data.shopInfoList, function (index, item) {
                 var oprations = "";
-                oprations = "<a href='"+path+item.FileName+"'>下载</a>";
+                oprations = "<a href='"+data.downLoadPath+item.FileName+"'>下载</a>";
                 var tr = $("<tr class='active'></tr>");
                 var col1 = $("<td></td>").html(oprations);
                 var col2 = $("<td class='textleft'></td>").html(item.FileName);
