@@ -6,35 +6,33 @@
     var areaNeedChk = '@Model.AreaNeedChk';
     var MaxFeedBack = '@Model.MaxFeedBack';
     var ShopAcceptChk = '@Model.ShopAcceptChk';
+    var type = "";
     var osspath = "LexusReport/Appeal/" + roleType + "/";
     $(function () {
-        //var obj = $("form").serializeObject();
-        //var key = obj.ProjectCode + '_' + obj.ShopCode + '_' + obj.SubjectCode;
-        //osspath += key+"/";
 
         $(".feedback input[type=radio]").prop("disabled", true);
         $(".feedback textarea").prop("readonly", true);
 
         var showFlag = false;
         if (ShopAcceptChk != "") {
-            if ((roleType == "S" || roleType == "Max")) {
+            if ((roleType == "S" || roleType == "Max" || roleType == "Max_Mystery")) {
                 $(".feedback input[name=LEXUSFeedBack]").prop("disabled", false);
                 showFlag = true;
             }
         } else if (MaxFeedBack != "") {
-            if ((roleType == "S" || roleType == "Shop")) {
+            if ((roleType == "Shop")) {
                 $(".feedback input[name=ShopAcceptChk]").prop("disabled", false);
                 $(".feedback textarea[name=ShopAcceptReason]").prop("readonly", false);
                 showFlag = true;
             }
         } else if (MaxFeedBack == "") {
-            if ((roleType == "S" || roleType == "Max")) {
+            if ((roleType == "S" || roleType == "Max" || roleType == "Max_Mystery")) {
                 $(".feedback input[name=MaxFeedBack]").prop("disabled", false);
                 $(".feedback textarea[name=MaxFeedBackReason]").prop("readonly", false);
                 showFlag = true;
             }
         }
-        if ((roleType == "S" || roleType == "Max")) {
+        if ((roleType == "S" || roleType == "Max" || roleType == "Max_Mystery")) {
             $(".feedback input[name=MaxFeedBack]").prop("disabled", false);
             $(".feedback textarea[name=MaxFeedBackReason]").prop("readonly", false);
             showFlag = true;
@@ -44,15 +42,8 @@
             $("#btnSave").attr("disabled", true);
         }
 
-        //$("." + roleType + "-feedback input[type=radio]").prop("disabled", false);
-        //$("." + roleType + "-feedback textarea").prop("readonly", false);
-        //if (roleType == "LEXUS" && areaNeedChk != "True") {
-        //    $("#AreaNeedChk[type=checkbox]").prop("disabled", false);
-        //} else {
-        //    $("#AreaNeedChk[type=checkbox]").prop("disabled", true);
-        //}
 
-        if (roleType != "Shop" && roleType != "S" && roleType != "Max") {
+        if (roleType != "Shop" && roleType != "S" && roleType != "Max"&&roleType != "Max_Mystery") {
             $("#selectfiles").hide();
             $("#postfiles").hide();
         }
@@ -91,14 +82,14 @@
             console.log("btnSave")
             //check propertys
             if (ShopAcceptChk != "") {
-                if ((roleType == "S" || roleType == "Max")) {
+                if ((roleType == "S" || roleType == "Max" || roleType == "Max_Mystery")) {
                     if ($("input[name=LEXUSFeedBack]:checked").length == 0) {
                         alert("最终意见必须选择");
                         return false;
                     }
                 }
             } else if (MaxFeedBack != "") {
-                if ((roleType == "S" || roleType == "Shop")) {
+                if ((roleType == "Shop")) {
                     if ($("input[name=ShopAcceptChk]:checked").length == 0) {
                         alert("经销店接受与否必须选择");
                         return false;
@@ -109,7 +100,7 @@
                     }
                 }
             } else if (MaxFeedBack == "") {
-                if ((roleType == "S" || roleType == "Max")) {
+                if ((roleType == "S" || roleType == "Max" || roleType == "Max_Mystery")) {
 
                     if ($("input[name=MaxFeedBack]:checked").length == 0) {
                         alert("明检项目组意见必须选择");
@@ -243,14 +234,14 @@
                 </tr>*@
 
             <tr class="feedback Max-feedback">
-                <th>明检项目组意见</th>
+                <th>项目组意见</th>
                 <td colspan="5">
                     <label>@Html.RadioButtonFor(m => Model.MaxFeedBack, "true")  <font>同意</font></label>
                     <label>@Html.RadioButtonFor(m => Model.MaxFeedBack, "false") <font>不同意</font></label>
                 </td>
             </tr>
             <tr class="feedback Max-feedback">
-                <th width="180">明检项目组反馈</th>
+                <th width="180">项目组反馈</th>
                 <td colspan="5"><textarea class="form-control" rows="2" name="MaxFeedBackReason">@Model.MaxFeedBackReason</textarea></td>
             </tr>
             @if (Model.MaxFeedBack.HasValue)

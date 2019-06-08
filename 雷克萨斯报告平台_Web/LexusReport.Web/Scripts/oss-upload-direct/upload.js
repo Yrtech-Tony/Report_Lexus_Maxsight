@@ -51,7 +51,7 @@ function init_uploader(options) {
     message = policyBase64
     var bytes = Crypto.HMAC(Crypto.SHA1, message, accesskey, { asBytes: true });
     var signature = Crypto.util.bytesToBase64(bytes);
-    var time1 = new Date().Format("yyyyMMddhhmmss");
+    var time1 = new Date().Format("yyyyMMddhhmmssfff");
     var filename = time1 + '_' + '${filename}';
     var uploader = new plupload.Uploader({
         runtimes: 'html5,flash,silverlight,html4',

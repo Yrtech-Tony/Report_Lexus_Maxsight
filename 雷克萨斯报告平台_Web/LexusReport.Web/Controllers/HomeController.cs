@@ -12,6 +12,8 @@ namespace LexusReport.Web.Controllers
         {
             ViewBag.Password = UserInfo.Password;
             Session["ReportType"] = reportType;
+            ViewBag.ReportType = reportType;
+            ViewBag.RoleTypeCode = UserInfo.RoleTypeCode;
             return View();
         }
         public ActionResult ReportTypeSelect()

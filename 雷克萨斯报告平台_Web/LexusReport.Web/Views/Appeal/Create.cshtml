@@ -9,30 +9,33 @@
         initOssClient();
 
         $("#SubjectCode").change(function () {
-            $.post("/Appeal/SubjectSearch", {
-                projectCode: $("input[name=ProjectCode]:checked").val(),
-                subjectCode: $("input[name=SubjectCode]").val()
-            }, function (data) {
-                if (data) {
-                    $.post("/Appeal/CheckAppealSave", $("form").serialize(), function () {
-                        //var obj = $("form").serializeObject();
-                        //key = obj.ProjectCode + '_' + obj.ShopCode + '_' + obj.SubjectCode;
-                        //initOssClient();
+            if("@ViewBag.RoleTypeCode"=="Max_Mystery"||"@ViewBag.ReportType"=="Mystery")
+            {}
+            else
+            {
+                $.post("/Appeal/SubjectSearch", {
+                    projectCode: $("input[name=ProjectCode]:checked").val(),
+                    subjectCode: $("input[name=SubjectCode]").val()
+                }, function (data) {
+                    if (data) {
+                        $.post("/Appeal/CheckAppealSave", $("form").serialize(), function () {
 
-                        $("#CheckPoint").val(data.CheckPoint);
-                        loadFileList();
-                    }).error(function () {
+                            $("#CheckPoint").val(data.CheckPoint);
+                            loadFileList();
+                        }).error(function () {
+                            $("#CheckPoint").val("");
+                            $("#SubjectCode").val("");
+                            $("#feedback_file_table tbody").empty();
+                        });
+                    } else {
+                        alert("该体系不存在，请重新输入！");
                         $("#CheckPoint").val("");
                         $("#SubjectCode").val("");
-                        $("#feedback_file_table tbody").empty();
-                    });
-                } else {
-                    alert("该体系不存在，请重新输入！");
-                    $("#CheckPoint").val("");
-                    $("#SubjectCode").val("");
-                }
+                    }
 
-            });
+                });
+            }
+
         });
         $("#btnSave").click(function () {
             debugger
@@ -46,10 +49,10 @@
                 alert("题号必填");
                 return false;
             }
-            if ($.trim($("#CheckPoint", form).val()).length == 0) {
-                alert("指标必填");
-                return false;
-            }
+            //if ($.trim($("#CheckPoint", form).val()).length == 0) {
+            //    alert("指标必填");
+            //    return false;
+            //}
             if ($.trim($("#AppealReason", form).val()).length == 0) {
                 alert("申诉理由必填");
                 return false;
@@ -82,6 +85,7 @@
             osspath: osspath,
             uploaded: function (args) {
                 var file = '';
+                debugger;
                 if (args.fileName.indexOf('_') >= 0) {
                     file = args.fileName.substr(args.fileName.indexOf('_') + 1);
                 }
@@ -92,7 +96,7 @@
                     subjectCode: $("#SubjectCode").val(),
                     fileName: file,
                     serverName: args.fileName,
-                    fileName: args.fileName, //key + "/" + args.fileName,
+                    //fileName: args.fileName, 
                     fileType: "Shop",
                 }, function (data) {
                     loadFileList();
@@ -181,7 +185,17 @@
             </tr>
             <tr>
                 <th>指标</th>
-                <td colspan="3"><textarea class="form-control" rows="3" id="CheckPoint" name="CheckPoint" readonly></textarea></td>
+                @{
+                    if (ViewBag.RoleTypeCode == "Max_Mystery" || ViewBag.ReportType == "Mystery")
+                    {
+                        <td colspan="3"><textarea class="form-control" rows="3" id="CheckPoint" name="CheckPoint"></textarea></td>
+                    }
+                    else
+                    {
+                        <td colspan="3"><textarea class="form-control" rows="3" id="CheckPoint" name="CheckPoint" readonly></textarea></td>
+                    }
+
+                }
             </tr>
             <tr>
                 <th style="border-bottom:none">申诉理由</th>

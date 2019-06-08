@@ -70,10 +70,23 @@
 <div class="container">
     <h1 class="title"><font>销售报告</font></h1>
     <div class="row">
-
+        @{
+            if (ViewBag.RoleTypeCode == "Max_Mystery" || ViewBag.ReportType == "Mystery")
+            {
+                <div class="col-xs-3 text-center"> <a href="/DOSAudit/Inspection" onclick='return checkInitPassword();'><img src="~/Content/images/pic01.jpg" /><h4>- 检查标准 -</h4></a></div>
+                <div class="col-xs-3 text-center"> <a href="/DOSAudit/DealerGuide" onclick='return checkInitPassword();'><img src="~/Content/images/pic01.jpg" /><h4>- 执行手册 -</h4></a></div>
+                <div class="col-xs-3 text-center">  <a href="/DOSAudit/QuarterlyReport" onclick='return checkInitPassword();'><img src="~/Content/images/pic01.jpg" /><h4>- 单店报告 -</h4></a></div>
+                <div class="col-xs-3 text-center"> <a href="/Appeal/Index" onclick='return checkInitPassword();'><img src="~/Content/images/pic01.jpg" /><h4>- 申诉处理 -</h4></a></div>
+            }
+            else
+            {
                 <div class="col-xs-3 text-center"> <a href="/DOSAudit/Inspection" onclick='return checkInitPassword();'><img src="~/Content/images/pic01.jpg" /><h4>- 检查标准 -</h4></a></div>
                 <div class="col-xs-3 text-center"> <a href="/DOSAudit/DealerGuide" onclick='return checkInitPassword();'><img src="~/Content/images/pic02.jpg" /><h4>- 执行手册 -</h4></a></div>
                 <div class="col-xs-3 text-center">  <a href="/DOSAudit/QuarterlyReport" onclick='return checkInitPassword();'><img src="~/Content/images/pic03.jpg" /><h4>- 单店报告 -</h4></a></div>
                 <div class="col-xs-3 text-center"> <a href="/Appeal/Index" onclick='return checkInitPassword();'><img src="~/Content/images/pic04.jpg" /><h4>- 申诉处理 -</h4></a></div>
+            }
+
+        }
+
     </div>
 </div>

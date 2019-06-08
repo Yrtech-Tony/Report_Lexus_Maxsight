@@ -148,6 +148,7 @@ namespace LexusReport.Web.Controllers
         }
         public ActionResult SubjectSearch(string projectCode, string subjectCode)
         {
+            SetServiceUrl();
             SubjectDto dto = _client.SubjectSearch(projectCode, subjectCode).FirstOrDefault();
             return Json(dto == null ? (object)false : dto, JsonRequestBehavior.AllowGet);
         }
@@ -158,11 +159,14 @@ namespace LexusReport.Web.Controllers
             AppealDto dto = new AppealDto();
             ViewBag.ProjectDtos = _client.ProjectSearch();
             ViewBag.ShopCode = shopCode;
+            ViewBag.RoleTypeCode = UserInfo.RoleTypeCode;
+            ViewBag.ReportType = ReportType;
             ViewBag.CurrentQuarter = ConvertMonthToQuarter();
             return PartialView(dto);
         }
         public ActionResult Edit(string projectCode, string shopCode, string subjectCode)
         {
+            SetServiceUrl();
             AppealDto dto = _client.AppealDtlSearch(projectCode, shopCode, subjectCode);
             ViewBag.ShopCode = dto.ShopCode;
             ViewBag.ProjectDtos = _client.ProjectSearch();
@@ -175,6 +179,7 @@ namespace LexusReport.Web.Controllers
 
         public ActionResult CheckAppealSave(AppealDto dto, bool add)
         {
+            SetServiceUrl();
             if (UserInfo.ShopList == null || UserInfo.ShopList.Length == 0)
             {
                 throw new Exception("用户不属于经销店，不能申诉登记");
@@ -190,6 +195,7 @@ namespace LexusReport.Web.Controllers
         {
             try
             {
+                SetServiceUrl();
                 if (add)
                 {
                     string shopCode = UserInfo.ShopList[0].ShopCode;
@@ -278,12 +284,14 @@ namespace LexusReport.Web.Controllers
 
         public ActionResult AppealFileSearch(string projectCode, string shopCode, string subjectCode)
         {
+            SetServiceUrl();
             var lst = _client.AppealFileSearch(projectCode, shopCode, subjectCode);
             return Json(lst, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult AppealFileSave(string projectCode, string shopCode, string subjectCode, string fileName, string serverName, string fileType)
         {
+            SetServiceUrl();
             _client.AppealFileSave(0, projectCode, shopCode, subjectCode, fileType, fileName, serverName, UserInfo.UserId);
             return Json("", JsonRequestBehavior.AllowGet);
         }
@@ -306,6 +314,7 @@ namespace LexusReport.Web.Controllers
 
         public ActionResult DeleteFile(int id, string filename)
         {
+            SetServiceUrl();
             _client.AppealFileDelete(id);
             OssClient ossClient = new OssClient(endpoin, accessid, accessKey);
             ossClient.DeleteObject("vgic", filename);

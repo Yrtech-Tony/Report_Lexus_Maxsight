@@ -69,7 +69,7 @@ namespace LexusReport.Web.Controllers
                 downLoadPath = "DownloadFile?file=~/ReportFiles/DOSAudit/QuarterReport/";
             }
             List<ShopDto> resultListTemp = GetFileList(areaCode, groupCode, shopCode, projectCode, shopCodeKey, reportPath);//获取符合条件的所有季度报告
-            List<ShopDto> resultList = ((from u in resultListTemp orderby u.ShopCode select u).Skip(_countPerPage * (pageNum - 1)).Take(_countPerPage)).ToList<ShopDto>();//分页
+            List<ShopDto> resultList = ((from u in resultListTemp orderby u.UploadDate select u).Skip(_countPerPage * (pageNum - 1)).Take(_countPerPage)).ToList<ShopDto>();//分页
             return Json(new { shopInfoList = resultList, totalCount = resultListTemp.Count, downLoadPath = downLoadPath }, JsonRequestBehavior.AllowGet);
         }
         #endregion
@@ -108,7 +108,7 @@ namespace LexusReport.Web.Controllers
                     FileName = fileInfo.Name,
                 });
             }
-            List<ShopDto> resultList = ((from u in resultListTemp orderby u.ShopCode select u).Skip(_countPerPage * (pageNum - 1)).Take(_countPerPage)).ToList<ShopDto>();//分页
+            List<ShopDto> resultList = ((from u in resultListTemp orderby u.UploadDate select u).Skip(_countPerPage * (pageNum - 1)).Take(_countPerPage)).ToList<ShopDto>();//分页
             return Json(new { shopInfoList = resultList, totalCount = resultListTemp.Count, downLoadPath = downLoadPath }, JsonRequestBehavior.AllowGet);
         }
         #endregion
