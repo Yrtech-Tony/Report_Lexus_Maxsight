@@ -55,7 +55,9 @@ namespace LexusReport.Web.Controllers
         {
             get
             {
-                return Session["ReportType"].ToString();
+                if (Session["ReportType"] == null) { return ""; }
+                else{
+                return Session["ReportType"].ToString();}
             }
         }
         protected void CalcPages(int total)
