@@ -236,6 +236,7 @@
     <Content Include="fonts\lexus2017.ttf" />
     <Content Include="fonts\lexus2017.woff" />
     <Content Include="Properties\DataSources\System.Data.DataSet.datasource" />
+    <None Include="Properties\PublishProfiles\密采发布文件.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -512,7 +513,7 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Service References\ClientService\service11.disco" />
+    <None Include="Service References\ClientService\service.disco" />
     <Content Include="SevenZipSharp.dll" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -543,8 +544,8 @@
     <Content Include="Views\Appeal\Create.cshtml" />
     <Content Include="Views\DOSAudit\_DOSAuditLayout.cshtml" />
     <Content Include="Views\Appeal\AppealCountByArea.cshtml" />
-    <None Include="Service References\ClientService\service11.wsdl" />
     <Content Include="Views\Home\ReportTypeSelect.cshtml" />
+    <None Include="Service References\ClientService\service.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

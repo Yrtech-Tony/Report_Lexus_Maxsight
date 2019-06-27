@@ -19,11 +19,11 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://60.205.5.60:8000/LEXUSReportServer/service.asmx" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://60.205.5.60:8000/LEXUSReportServerTest/service.asmx" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="service11.wsdl" MetadataType="Wsdl" ID="a86c5fb5-8340-43da-bbba-22b328328de3" SourceId="1" SourceUrl="http://60.205.5.60:8000/LEXUSReportServer/service.asmx?wsdl" />
-    <MetadataFile FileName="service11.disco" MetadataType="Disco" ID="5f9971d1-3a9a-4fda-8786-848758b284f9" SourceId="1" SourceUrl="http://60.205.5.60:8000/LEXUSReportServer/service.asmx?disco" />
+    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="2bfbf1a2-e01a-4c78-a59c-d1c80b0b4a23" SourceId="1" SourceUrl="http://60.205.5.60:8000/LEXUSReportServerTest/service.asmx?wsdl" />
+    <MetadataFile FileName="service.disco" MetadataType="Disco" ID="914c1480-68aa-4735-986b-aaeb4842b358" SourceId="1" SourceUrl="http://60.205.5.60:8000/LEXUSReportServerTest/service.asmx?disco" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

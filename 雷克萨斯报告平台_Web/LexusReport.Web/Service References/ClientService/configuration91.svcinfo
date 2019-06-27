@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="tu7OrmmxXLDjxvDfuOXxv3yckok=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="FXeHMsB9uQSNI+Tbmv+Mqm3h+nA=">
   <bindingConfigurations>
     <bindingConfiguration bindingType="basicHttpBinding" name="ServiceSoap">
       <properties>
@@ -112,10 +112,10 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="ServiceSoap" contract="ClientService.ServiceSoap" bindingType="basicHttpBinding" address="http://60.205.5.60:8000/LEXUSReportServer/service.asmx" bindingConfiguration="ServiceSoap">
+    <endpoint name="ServiceSoap" contract="ClientService.ServiceSoap" bindingType="basicHttpBinding" address="http://60.205.5.60:8000/LEXUSReportServerTest/service.asmx" bindingConfiguration="ServiceSoap">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>http://60.205.5.60:8000/LEXUSReportServer/service.asmx</serializedValue>
+          <serializedValue>http://60.205.5.60:8000/LEXUSReportServerTest/service.asmx</serializedValue>
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
