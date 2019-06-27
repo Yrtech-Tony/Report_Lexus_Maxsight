@@ -155,6 +155,7 @@ namespace LexusReport.Web.Controllers
 
         public ActionResult Create()
         {
+            SetServiceUrl();
             string shopCode = UserInfo.ShopList[0].ShopCode;
             AppealDto dto = new AppealDto();
             ViewBag.ProjectDtos = _client.ProjectSearch();
