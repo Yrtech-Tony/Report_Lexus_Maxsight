@@ -185,8 +185,23 @@ namespace LexusReport.Web.Controllers
                         //}
                         //else // 季度或月份选择的情况下
                         //{
-                        if (file.Name.Split('_')[0].Substring(0, 6) == projectCode
-                            && file.Name.Split('_')[1].Trim() == strShop.ShopCode.Trim())
+                        //if (file.Name.Split('_')[0].Substring(0, 6) == projectCode
+                        //    && file.Name.Split('_')[1].Trim() == strShop.ShopCode.Trim())
+                        //{
+                        //    ShopDto result = new ShopDto();
+                        //    result.ShopCode = strShop.ShopCode;
+                        //    result.ShopName = strShop.ShopName;
+                        //    //result.AreaName = strShop.AreaName;
+                        //    result.BigAreaCode = strShop.BigAreaCode;
+                        //    result.GroupName = strShop.GroupName;
+                        //    //result.ShopType = strShop.ShopType;
+                        //    result.FileName = file.Name;
+                        //    result.UploadDate = file.LastWriteTime;
+
+                        //    resultListTemp.Add(result);
+                        //}
+                        if (file.Name.Trim().Contains(projectCode.Trim())
+                           && file.Name.Trim().Contains(strShop.ShopCode.Trim()))
                         {
                             ShopDto result = new ShopDto();
                             result.ShopCode = strShop.ShopCode;

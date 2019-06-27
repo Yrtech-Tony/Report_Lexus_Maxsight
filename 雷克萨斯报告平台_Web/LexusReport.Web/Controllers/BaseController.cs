@@ -55,7 +55,9 @@ namespace LexusReport.Web.Controllers
         {
             get
             {
-                return Session["ReportType"].ToString();
+                if (Session["ReportType"] == null) { return ""; }
+                else{
+                return Session["ReportType"].ToString();}
             }
         }
         protected void CalcPages(int total)
@@ -74,7 +76,12 @@ namespace LexusReport.Web.Controllers
         {
             try
             {
-                return ConfigurationSettings.AppSettings["ProjectCode"];
+                if ((UserInfo != null && UserInfo.RoleTypeCode == "Max_Mystery") || ReportType == "Mystery")
+                { return ConfigurationSettings.AppSettings["ProjectCode_Mystery"]; }
+                else
+                {
+                    return ConfigurationSettings.AppSettings["ProjectCode"];
+                }
             }
             catch (Exception ex)
             {
@@ -381,6 +388,7 @@ namespace LexusReport.Web.Controllers
 
         public ActionResult ProjectSearch()
         {
+            SetServiceUrl();
             ProjectDto[] projects = _client.ProjectSearch();
             return Json(projects, JsonRequestBehavior.AllowGet);
         }
