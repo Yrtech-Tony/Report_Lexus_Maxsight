@@ -2168,10 +2168,10 @@ namespace LexusReport.Web.ClientService {
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(MarshalByRefObject))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(PictureDto[]))]
-        void AppealSave(string projectCode, string shopCode, string subjectCode, string appealReason, string appealUserId);
+        void AppealSave(string projectCode, string shopCode, string subjectCode, string checkPoint, string appealReason, string appealUserId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/AppealSave", ReplyAction="*")]
-        System.Threading.Tasks.Task AppealSaveAsync(string projectCode, string shopCode, string subjectCode, string appealReason, string appealUserId);
+        System.Threading.Tasks.Task AppealSaveAsync(string projectCode, string shopCode, string subjectCode, string checkPoint, string appealReason, string appealUserId);
         
         // CODEGEN: 参数“feedBack”需要其他方案信息，使用参数模式无法捕获这些信息。特定特性为“System.Xml.Serialization.XmlElementAttribute”。
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/AppealFeedBackSave", ReplyAction="*")]
@@ -9262,12 +9262,12 @@ namespace LexusReport.Web.ClientService {
             return base.Channel.AppealCountByAreaAsync(projectCode, areaCode);
         }
         
-        public void AppealSave(string projectCode, string shopCode, string subjectCode, string appealReason, string appealUserId) {
-            base.Channel.AppealSave(projectCode, shopCode, subjectCode, appealReason, appealUserId);
+        public void AppealSave(string projectCode, string shopCode, string subjectCode, string checkPoint, string appealReason, string appealUserId) {
+            base.Channel.AppealSave(projectCode, shopCode, subjectCode, checkPoint, appealReason, appealUserId);
         }
         
-        public System.Threading.Tasks.Task AppealSaveAsync(string projectCode, string shopCode, string subjectCode, string appealReason, string appealUserId) {
-            return base.Channel.AppealSaveAsync(projectCode, shopCode, subjectCode, appealReason, appealUserId);
+        public System.Threading.Tasks.Task AppealSaveAsync(string projectCode, string shopCode, string subjectCode, string checkPoint, string appealReason, string appealUserId) {
+            return base.Channel.AppealSaveAsync(projectCode, shopCode, subjectCode, checkPoint, appealReason, appealUserId);
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]

@@ -2152,9 +2152,9 @@ public class Service : System.Web.Services.WebService
         return list;
     }
     [WebMethod]
-    public void AppealSave(string projectCode, string shopCode, string subjectCode, string appealReason, string appealUserId)
+    public void AppealSave(string projectCode, string shopCode, string subjectCode, string checkPoint, string appealReason, string appealUserId)
     {
-        string sql = string.Format("EXEC up_Appeal_S '{0}','{1}','{2}','{3}','{4}'", projectCode, shopCode, subjectCode, appealReason, appealUserId);
+        string sql = string.Format("EXEC up_Appeal_S '{0}','{1}','{2}','{3}','{4}','{5}'", projectCode, shopCode, subjectCode, checkPoint, appealReason, appealUserId);
 
         DataSet ds = CommonHandler.query(sql);
     }

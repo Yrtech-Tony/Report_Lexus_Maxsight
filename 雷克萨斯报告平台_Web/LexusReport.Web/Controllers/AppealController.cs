@@ -200,7 +200,7 @@ namespace LexusReport.Web.Controllers
                 if (add)
                 {
                     string shopCode = UserInfo.ShopList[0].ShopCode;
-                    _client.AppealSave(dto.ProjectCode, shopCode, dto.SubjectCode, dto.AppealReason, UserInfo.UserId);
+                    _client.AppealSave(dto.ProjectCode, shopCode, dto.SubjectCode,dto.CheckPoint, dto.AppealReason, UserInfo.UserId);
                 }
                 else
                 {
