@@ -141,6 +141,7 @@ namespace LexusReport.Web.Controllers
         }
         public ActionResult AppealCountByAreaSearch(string projectCode = "")
         {
+            SetServiceUrl();
             var lst = _client.AppealCountByArea(projectCode, "");
             // int total = 100;
             // CalcPages(total);
